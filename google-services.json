@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "56716556651",
+    "project_id": "rapidrinse-a4cc9",
+    "storage_bucket": "rapidrinse-a4cc9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56716556651:android:2feef65fa6fc281eb1742e",
+        "android_client_info": {
+          "package_name": "com.rapidrinse.expo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAriYhHldO265hKtlNIOidMGGUP6e3Ym3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

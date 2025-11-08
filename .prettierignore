@@ -1,0 +1,14 @@
+legacy/
+node_modules/
+.expo/
+dist/
+web-build/
+ios/
+android/
+coverage/
+*.log
+*.d.ts
+package-lock.json
+yarn.lock
+.git/
+.husky/

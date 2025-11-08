@@ -9,7 +9,7 @@ import {
     Alert,
     ActivityIndicator,
 } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+// import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { collection, query, getDocs, where } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -147,7 +147,7 @@ const NearbyBusinessesScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            {region && (
+            {/* {region && (
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     style={styles.map}
@@ -170,7 +170,7 @@ const NearbyBusinessesScreen = () => {
                         </Marker>
                     ))}
                 </MapView>
-            )}
+            )} */}
 
             <View style={styles.businessList}>
                 <Text style={styles.listTitle}>Nearby Car Washes</Text>
