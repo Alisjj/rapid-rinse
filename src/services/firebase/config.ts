@@ -15,6 +15,9 @@ export const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+// Export app for services that need it
+export { app };
+
 // Use getAuth instead of initializeAuth - it handles persistence automatically
 export const auth = getAuth(app);
 

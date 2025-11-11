@@ -85,6 +85,7 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
   } = useServices();
   const {
     createBooking,
+    updateBookingData,
     loading: bookingLoading,
     error: bookingError,
   } = useBookingCreation(user?.id || '');
@@ -217,7 +218,7 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
   // Handle booking creation
   const handleBookService = async () => {
     if (!formData.selectedVehicle) {
-      Alert.alert('Error', 'Please select a vehicle for the serviceData.');
+      Alert.alert('Error', 'Please select a vehicle for the service.');
       return;
     }
 
@@ -226,13 +227,37 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
       return;
     }
 
+    if (!user?.id) {
+      Alert.alert('Error', 'You must be logged in to book a service.');
+      return;
+    }
+
     setIsBooking(true);
 
     try {
-      // Mock booking creation - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('handleBookService: Starting booking process');
 
-      const bookingId = 'booking_' + Date.now();
+      // Update booking data in the hook
+      updateBookingData({
+        customerId: user.id,
+        businessId: businessId,
+        serviceId: serviceId,
+        scheduledDate: formData.scheduledDate,
+        vehicleInfo: {
+          id: formData.selectedVehicle.id,
+          make: formData.selectedVehicle.make,
+          model: formData.selectedVehicle.model,
+          year: formData.selectedVehicle.year,
+          plateNumber: formData.selectedVehicle.plateNumber,
+          color: formData.selectedVehicle.color,
+        },
+        notes: formData.notes,
+      });
+
+      console.log('handleBookService: Calling createBooking');
+      const bookingId = await createBooking();
+
+      console.log('handleBookService: Booking created with ID:', bookingId);
 
       Alert.alert(
         'Booking Confirmed!',
@@ -253,8 +278,13 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
         ]
       );
     } catch (error) {
-      console.error('Error creating booking:', error);
-      Alert.alert('Error', 'Failed to create booking. Please try again.');
+      console.error('handleBookService: Error creating booking:', error);
+      Alert.alert(
+        'Error',
+        error instanceof Error
+          ? error.message
+          : 'Failed to create booking. Please try again.'
+      );
     } finally {
       setIsBooking(false);
     }

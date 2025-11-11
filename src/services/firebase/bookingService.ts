@@ -29,12 +29,23 @@ export interface BookingWithDetails extends Booking {
   serviceDuration?: number;
 }
 
+// Vehicle information
+export interface VehicleInfo {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  plateNumber: string;
+  color: string;
+}
+
 // Booking creation data
 export interface CreateBookingData {
   customerId: string;
   businessId: string;
   serviceId: string;
   scheduledDate: Date;
+  vehicleInfo: VehicleInfo;
   notes?: string;
 }
 
@@ -72,6 +83,13 @@ export class BookingService {
   // Create a new booking
   static async createBooking(bookingData: CreateBookingData): Promise<string> {
     try {
+      console.log('Creating booking with data:', {
+        businessId: bookingData.businessId,
+        serviceId: bookingData.serviceId,
+        scheduledDate: bookingData.scheduledDate,
+        customerId: bookingData.customerId,
+      });
+
       // Validate booking date is in the future
       if (bookingData.scheduledDate <= new Date()) {
         throw new Error('Booking date must be in the future');
@@ -102,10 +120,13 @@ export class BookingService {
         updatedAt: serverTimestamp(),
       };
 
+      console.log('Writing booking to Firestore...');
       const bookingRef = await addDoc(
         collection(db, this.COLLECTION_NAME),
         booking
       );
+
+      console.log('Booking created successfully with ID:', bookingRef.id);
 
       // Send notification to business owner (implement as needed)
       await this.notifyBusinessOwner(bookingData.businessId, bookingRef.id);
@@ -163,6 +184,7 @@ export class BookingService {
     filters?: BookingFilters
   ): Promise<BookingWithDetails[]> {
     try {
+      console.log('BookingService.getBookings called with filters:', filters);
       const bookingsRef = collection(db, this.COLLECTION_NAME);
       const constraints = [];
 
@@ -199,8 +221,11 @@ export class BookingService {
       // Order by scheduled date (most recent first)
       constraints.push(orderBy('scheduledDate', 'desc'));
 
+      console.log('Querying Firestore with constraints:', constraints.length);
       const q = query(bookingsRef, ...constraints);
       const querySnapshot = await getDocs(q);
+
+      console.log('Found', querySnapshot.size, 'bookings in Firestore');
 
       const bookings: Booking[] = [];
       querySnapshot.forEach(doc => {
@@ -213,10 +238,12 @@ export class BookingService {
       });
 
       // Enrich all bookings with details
+      console.log('Enriching bookings with details...');
       const enrichedBookings = await Promise.all(
         bookings.map(booking => this.enrichBookingWithDetails(booking))
       );
 
+      console.log('Returning', enrichedBookings.length, 'enriched bookings');
       return enrichedBookings;
     } catch (error) {
       console.error('Error fetching bookings:', error);

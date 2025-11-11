@@ -49,6 +49,15 @@ export interface OperatingHours {
   };
 }
 
+export interface VehicleInfo {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  plateNumber: string;
+  color: string;
+}
+
 export interface Booking {
   id: string;
   customerId: string;
@@ -57,6 +66,7 @@ export interface Booking {
   scheduledDate: Date;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   totalAmount: number;
+  vehicleInfo: VehicleInfo;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;

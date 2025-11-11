@@ -22,7 +22,15 @@ export type {
   CreateBookingData,
   UpdateBookingData,
   BookingFilters,
+  VehicleInfo,
 } from './bookingService';
+
+// Vehicle service
+export { VehicleService } from './vehicleService';
+export type {
+  Vehicle as VehicleDocument,
+  CreateVehicleData,
+} from './vehicleService';
 
 // User service
 export { UserService } from './userService';

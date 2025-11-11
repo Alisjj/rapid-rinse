@@ -59,15 +59,18 @@ export const useBookings = (): UseBookingsReturn => {
   // Load bookings with filters
   const loadBookings = useCallback(async (filters?: BookingFilters) => {
     try {
+      console.log('Loading bookings with filters:', filters);
       setLoading(true);
       setError(null);
       currentFiltersRef.current = filters;
 
       const bookingsData = await BookingService.getBookings(filters);
+      console.log('Loaded bookings:', bookingsData.length, 'bookings');
       setBookings(bookingsData);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to load bookings';
+      console.error('Error loading bookings:', errorMessage, err);
       setError(errorMessage);
       setBookings([]);
     } finally {

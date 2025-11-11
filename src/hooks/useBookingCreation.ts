@@ -137,7 +137,7 @@ export const useBookingCreation = (
 
   // Update booking data
   const updateBookingData = useCallback((data: Partial<CreateBookingData>) => {
-    setBookingData((prev) => ({ ...prev, ...data }));
+    setBookingData(prev => ({ ...prev, ...data }));
     setError(null);
   }, []);
 
@@ -190,7 +190,7 @@ export const useBookingCreation = (
       const services = await BusinessService.getBusinessServices(
         bookingData.businessId
       );
-      const service = services.find((s) => s.id === bookingData.serviceId);
+      const service = services.find(s => s.id === bookingData.serviceId);
 
       return service?.price || null;
     } catch (err) {
@@ -236,7 +236,12 @@ export const useBookingCreation = (
 
   // Create booking
   const createBooking = useCallback(async (): Promise<string> => {
+    console.log('useBookingCreation.createBooking called');
+    console.log('Current booking data:', bookingData);
+    console.log('Is confirmation step valid?', isStepValid('confirmation'));
+
     if (!isStepValid('confirmation')) {
+      console.error('Booking data is incomplete');
       throw new Error('Booking data is incomplete');
     }
 
@@ -244,10 +249,12 @@ export const useBookingCreation = (
       setCreating(true);
       setError(null);
 
+      console.log('Calling BookingService.createBooking...');
       const bookingId = await BookingService.createBooking(
         bookingData as CreateBookingData
       );
 
+      console.log('Booking created, resetting flow');
       // Reset the flow after successful creation
       resetBookingFlow();
 
@@ -255,6 +262,7 @@ export const useBookingCreation = (
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to create booking';
+      console.error('Error in useBookingCreation:', errorMessage, err);
       setError(errorMessage);
       throw err;
     } finally {
