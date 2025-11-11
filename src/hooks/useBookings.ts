@@ -49,7 +49,7 @@ export const useBookings = (): UseBookingsReturn => {
 
   // Refs for real-time subscriptions and current filters
   const unsubscribeRef = useRef<Unsubscribe | null>(null);
-  const currentFiltersRef = useRef<BookingFilters | undefined>();
+  const currentFiltersRef = useRef<BookingFilters | undefined>(undefined);
 
   // Clear error function
   const clearError = useCallback(() => {
@@ -101,7 +101,7 @@ export const useBookings = (): UseBookingsReturn => {
         setError(null);
 
         // Check if booking is already in local state
-        const existingBooking = bookings.find((b) => b.id === bookingId);
+        const existingBooking = bookings.find(b => b.id === bookingId);
         if (existingBooking) {
           return existingBooking;
         }
@@ -111,8 +111,8 @@ export const useBookings = (): UseBookingsReturn => {
 
         if (booking) {
           // Update local state if booking is found
-          setBookings((prev) => {
-            const index = prev.findIndex((b) => b.id === bookingId);
+          setBookings(prev => {
+            const index = prev.findIndex(b => b.id === bookingId);
             if (index >= 0) {
               const updated = [...prev];
               updated[index] = booking;
@@ -145,8 +145,8 @@ export const useBookings = (): UseBookingsReturn => {
         await BookingService.updateBooking(bookingId, { status });
 
         // Update local state optimistically
-        setBookings((prev) =>
-          prev.map((booking) =>
+        setBookings(prev =>
+          prev.map(booking =>
             booking.id === bookingId
               ? { ...booking, status, updatedAt: new Date() }
               : booking
@@ -176,8 +176,8 @@ export const useBookings = (): UseBookingsReturn => {
         await BookingService.cancelBooking(bookingId, reason);
 
         // Update local state optimistically
-        setBookings((prev) =>
-          prev.map((booking) =>
+        setBookings(prev =>
+          prev.map(booking =>
             booking.id === bookingId
               ? {
                   ...booking,
@@ -210,8 +210,8 @@ export const useBookings = (): UseBookingsReturn => {
         await BookingService.confirmBooking(bookingId);
 
         // Update local state optimistically
-        setBookings((prev) =>
-          prev.map((booking) =>
+        setBookings(prev =>
+          prev.map(booking =>
             booking.id === bookingId
               ? {
                   ...booking,
@@ -243,8 +243,8 @@ export const useBookings = (): UseBookingsReturn => {
         await BookingService.completeBooking(bookingId);
 
         // Update local state optimistically
-        setBookings((prev) =>
-          prev.map((booking) =>
+        setBookings(prev =>
+          prev.map(booking =>
             booking.id === bookingId
               ? {
                   ...booking,
@@ -279,7 +279,7 @@ export const useBookings = (): UseBookingsReturn => {
 
       const unsubscribe = BookingService.subscribeToBookings(
         filters,
-        (updatedBookings) => {
+        updatedBookings => {
           setBookings(updatedBookings);
         }
       );
@@ -305,7 +305,7 @@ export const useBookings = (): UseBookingsReturn => {
   // Get bookings by status
   const getBookingsByStatus = useCallback(
     (status: Booking['status']): BookingWithDetails[] => {
-      return bookings.filter((booking) => booking.status === status);
+      return bookings.filter(booking => booking.status === status);
     },
     [bookings]
   );
@@ -315,7 +315,7 @@ export const useBookings = (): UseBookingsReturn => {
     const now = new Date();
     return bookings
       .filter(
-        (booking) =>
+        booking =>
           booking.scheduledDate > now &&
           ['pending', 'confirmed'].includes(booking.status)
       )
@@ -327,7 +327,7 @@ export const useBookings = (): UseBookingsReturn => {
     const now = new Date();
     return bookings
       .filter(
-        (booking) =>
+        booking =>
           booking.scheduledDate <= now ||
           ['completed', 'cancelled'].includes(booking.status)
       )

@@ -5,7 +5,7 @@ import { ThemedText } from '../../components/ui';
 import { Header } from '../../components/navigation';
 import { BusinessCard } from '../../components/business';
 import { useBusinesses } from '../../hooks';
-import { Business } from '../../types';
+import { BusinessWithLocation } from '../../services/firebase/businessService';
 
 type SearchResultsScreenRouteProp = RouteProp<
   { SearchResults: { query: string; location?: string } },
@@ -15,42 +15,44 @@ type SearchResultsScreenRouteProp = RouteProp<
 export const SearchResultsScreen: React.FC = () => {
   const route = useRoute<SearchResultsScreenRouteProp>();
   const { query, location } = route.params;
-  const { searchBusinesses, loading } = useBusinesses();
-  const [results, setResults] = useState<Business[]>([]);
+  const { searchBusinesses, businesses, loading } = useBusinesses();
 
   useEffect(() => {
     const performSearch = async () => {
       try {
-        const searchResults = await searchBusinesses(query, location);
-        setResults(searchResults);
+        await searchBusinesses(query);
       } catch (error) {
         console.error('Search error:', error);
-        setResults([]);
       }
     };
 
     performSearch();
   }, [query, location, searchBusinesses]);
 
-  const renderBusinessItem = ({ item }: { item: Business }) => (
-    <BusinessCard
-      business={item}
-      onPress={() => {
-        // Navigate to business detail
-      }}
-      style={styles.businessCard}
-    />
+  const renderBusinessItem = ({ item }: { item: BusinessWithLocation }) => (
+    <View style={styles.businessCard}>
+      <BusinessCard
+        business={item}
+        onPress={() => {
+          // Navigate to business detail
+        }}
+      />
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      <Header title={`Search Results for "${query}"`} showBack />
+      <Header
+        title={`Search Results for "${query}"`}
+        showBackButton={true}
+        onBackPress={() => {}}
+      />
 
       {loading ? (
         <View style={styles.loadingContainer}>
           <ThemedText variant='body'>Searching...</ThemedText>
         </View>
-      ) : results.length === 0 ? (
+      ) : businesses.length === 0 ? (
         <View style={styles.emptyContainer}>
           <ThemedText variant='h3'>No results found</ThemedText>
           <ThemedText variant='body' style={styles.emptyText}>
@@ -59,7 +61,7 @@ export const SearchResultsScreen: React.FC = () => {
         </View>
       ) : (
         <FlatList
-          data={results}
+          data={businesses}
           renderItem={renderBusinessItem}
           keyExtractor={item => item.id}
           contentContainerStyle={styles.listContainer}

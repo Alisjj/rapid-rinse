@@ -209,6 +209,7 @@ export class AuthService {
         updatedAt: data.updatedAt?.toDate() || new Date(),
       } as UserProfile;
     } catch (error) {
+      console.error('Error fetching user profile:', error);
       throw new Error('Failed to fetch user profile');
     }
   }

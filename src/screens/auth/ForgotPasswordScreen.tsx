@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   Alert,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -25,8 +25,8 @@ import {
 import { AuthStackParamList } from '@/types';
 import { useTheme } from '@/theme';
 
-// Import services (placeholder for now)
-// import { sendPasswordResetEmail } from '@/services/firebase';
+// Import services
+import { AuthService } from '@/services/firebase';
 
 type ForgotPasswordScreenNavigationProp = NativeStackNavigationProp<
   AuthStackParamList,
@@ -99,10 +99,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
     setError('');
 
     try {
-      // Mock password reset - replace with actual Firebase auth
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Simulate success
+      await AuthService.resetPassword(email);
       console.log('Password reset email sent to:', email);
       setEmailSent(true);
     } catch (error: any) {
@@ -144,7 +141,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
               ]}
             >
               <ThemedText
-                variant="h1"
+                variant='h1'
                 style={{ color: theme.colors.success['600'] }}
               >
                 ✓
@@ -152,12 +149,12 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             </View>
 
             {/* Success Message */}
-            <ThemedText variant="h3" style={styles.successTitle}>
+            <ThemedText variant='h3' style={styles.successTitle}>
               Check Your Email
             </ThemedText>
 
             <ThemedText
-              variant="body"
+              variant='body'
               style={[
                 styles.successMessage,
                 { color: theme.colors.gray['600'] },
@@ -167,14 +164,14 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             </ThemedText>
 
             <ThemedText
-              variant="bodyLarge"
+              variant='bodyLarge'
               style={[styles.emailText, { color: theme.colors.primary['600'] }]}
             >
               {email}
             </ThemedText>
 
             <ThemedText
-              variant="body"
+              variant='body'
               style={[
                 styles.instructionText,
                 { color: theme.colors.gray['600'] },
@@ -187,24 +184,22 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             {/* Action Buttons */}
             <View style={styles.actionButtons}>
               <ThemedButton
-                variant="primary"
-                size="lg"
+                title='Back to Sign In'
+                variant='primary'
+                size='lg'
                 onPress={() => navigation.navigate('Login')}
                 style={styles.actionButton}
-              >
-                Back to Sign In
-              </ThemedButton>
+              />
 
               <ThemedButton
-                variant="outline"
-                size="md"
+                title='Resend Email'
+                variant='outline'
+                size='md'
                 onPress={handleResendEmail}
                 loading={isLoading}
                 disabled={isLoading}
                 style={styles.actionButton}
-              >
-                Resend Email
-              </ThemedButton>
+              />
             </View>
           </Animated.View>
         </View>
@@ -223,7 +218,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps='handled'
         >
           <Animated.View
             style={[
@@ -237,14 +232,12 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             {/* Header */}
             <View style={styles.header}>
               <ThemedButton
-                variant="ghost"
-                size="sm"
+                title='Back'
+                variant='ghost'
+                size='sm'
                 onPress={() => navigation.goBack()}
-                leftIcon="arrow-left"
                 style={styles.backButton}
-              >
-                Back
-              </ThemedButton>
+              />
             </View>
 
             {/* Logo */}
@@ -252,13 +245,13 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
               <Image
                 source={require('../../../assets/logo.png')}
                 style={styles.logo}
-                resizeMode="contain"
+                resizeMode='contain'
               />
-              <ThemedText variant="h2" style={styles.title}>
+              <ThemedText variant='h2' style={styles.title}>
                 Forgot Password?
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={[styles.subtitle, { color: theme.colors.gray['500'] }]}
               >
                 No worries! Enter your email address and we'll send you a link
@@ -270,52 +263,53 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             <View style={styles.form}>
               {/* Error Message */}
               {error && (
-                <HelperText type="error" style={styles.errorMessage}>
-                  {error}
-                </HelperText>
+                <HelperText
+                  text={error}
+                  type='error'
+                  style={styles.errorMessage}
+                />
               )}
 
               {/* Email Input */}
               <View style={styles.inputContainer}>
                 <ThemedTextInput
-                  label="Email Address"
-                  placeholder="Enter your email"
+                  label='Email Address'
+                  placeholder='Enter your email'
                   value={email}
-                  onChangeText={(value) => {
+                  onChangeText={value => {
                     setEmail(value);
                     if (error) setError(''); // Clear error when user types
                   }}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="done"
+                  keyboardType='email-address'
+                  autoCapitalize='none'
+                  autoComplete='email'
+                  returnKeyType='done'
                   onSubmitEditing={handlePasswordReset}
-                  error={!!error}
+                  errorText={error}
                 />
               </View>
 
               {/* Reset Button */}
               <ThemedButton
-                variant="primary"
-                size="lg"
+                title='Send Reset Link'
+                variant='primary'
+                size='lg'
                 onPress={handlePasswordReset}
                 loading={isLoading}
                 disabled={isLoading || !email.trim()}
                 style={styles.resetButton}
-              >
-                Send Reset Link
-              </ThemedButton>
+              />
             </View>
 
             {/* Footer */}
             <View style={styles.footer}>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={{ color: theme.colors.gray['500'] }}
               >
                 Remember your password?{' '}
                 <ThemedText
-                  variant="body"
+                  variant='body'
                   style={[
                     styles.footerLink,
                     { color: theme.colors.primary['500'] },

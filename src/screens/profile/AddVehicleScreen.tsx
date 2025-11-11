@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -218,11 +218,11 @@ const AddVehicleScreen: React.FC<AddVehicleScreenProps> = ({ navigation }) => {
 
   // Handle input changes
   const handleInputChange = (field: keyof VehicleFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
 
     // Clear general error when user starts typing
     if (errors.general) {
-      setErrors((prev) => ({ ...prev, general: undefined }));
+      setErrors(prev => ({ ...prev, general: undefined }));
     }
 
     // Real-time validation with debounce
@@ -240,7 +240,7 @@ const AddVehicleScreen: React.FC<AddVehicleScreenProps> = ({ navigation }) => {
 
     try {
       // Mock vehicle creation - replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       Alert.alert('Success!', 'Vehicle added successfully.', [
         {
@@ -262,7 +262,7 @@ const AddVehicleScreen: React.FC<AddVehicleScreenProps> = ({ navigation }) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Header title="Add Vehicle" />
+      <Header title='Add Vehicle' />
 
       <KeyboardAvoidingView
         style={styles.keyboardAvoid}
@@ -271,152 +271,142 @@ const AddVehicleScreen: React.FC<AddVehicleScreenProps> = ({ navigation }) => {
         <ScrollView
           style={styles.content}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps='handled'
         >
           <ThemedCard style={styles.formCard}>
-            <ThemedText variant="h4" style={styles.formTitle}>
+            <ThemedText variant='h4' style={styles.formTitle}>
               Vehicle Information
             </ThemedText>
 
             {/* General Error */}
             {errors.general && (
-              <HelperText type="error" style={styles.generalError}>
-                {errors.general}
-              </HelperText>
+              <HelperText
+                text={errors.general}
+                type='error'
+                style={styles.generalError}
+              />
             )}
 
             {/* Make Input */}
             <View style={styles.inputContainer}>
               <ThemedTextInput
-                label="Make *"
-                placeholder="e.g., Toyota, Honda, Ford"
+                label='Make *'
+                placeholder='e.g., Toyota, Honda, Ford'
                 value={formData.make}
-                onChangeText={(value) => handleInputChange('make', value)}
-                autoCapitalize="words"
-                returnKeyType="next"
-                error={!!errors.make}
+                onChangeText={value => handleInputChange('make', value)}
+                autoCapitalize='words'
+                returnKeyType='next'
+                errorText={errors.make}
               />
-              {errors.make && (
-                <HelperText type="error">{errors.make}</HelperText>
-              )}
+              {errors.make && <HelperText text={errors.make} type='error' />}
             </View>
 
             {/* Model Input */}
             <View style={styles.inputContainer}>
               <ThemedTextInput
-                label="Model *"
-                placeholder="e.g., Camry, Civic, F-150"
+                label='Model *'
+                placeholder='e.g., Camry, Civic, F-150'
                 value={formData.model}
-                onChangeText={(value) => handleInputChange('model', value)}
-                autoCapitalize="words"
-                returnKeyType="next"
-                error={!!errors.model}
+                onChangeText={value => handleInputChange('model', value)}
+                autoCapitalize='words'
+                returnKeyType='next'
+                errorText={errors.model}
               />
-              {errors.model && (
-                <HelperText type="error">{errors.model}</HelperText>
-              )}
+              {errors.model && <HelperText text={errors.model} type='error' />}
             </View>
 
             {/* Year Input */}
             <View style={styles.inputContainer}>
               <ThemedTextInput
-                label="Year *"
-                placeholder="e.g., 2020"
+                label='Year *'
+                placeholder='e.g., 2020'
                 value={formData.year}
-                onChangeText={(value) => handleInputChange('year', value)}
-                keyboardType="numeric"
+                onChangeText={value => handleInputChange('year', value)}
+                keyboardType='numeric'
                 maxLength={4}
-                returnKeyType="next"
-                error={!!errors.year}
+                returnKeyType='next'
+                errorText={errors.year}
               />
-              {errors.year && (
-                <HelperText type="error">{errors.year}</HelperText>
-              )}
+              {errors.year && <HelperText text={errors.year} type='error' />}
             </View>
 
             {/* Plate Number Input */}
             <View style={styles.inputContainer}>
               <ThemedTextInput
-                label="Plate Number *"
-                placeholder="e.g., ABC123"
+                label='Plate Number *'
+                placeholder='e.g., ABC123'
                 value={formData.plateNumber}
-                onChangeText={(value) =>
+                onChangeText={value =>
                   handleInputChange('plateNumber', value.toUpperCase())
                 }
-                autoCapitalize="characters"
-                returnKeyType="next"
-                error={!!errors.plateNumber}
+                autoCapitalize='characters'
+                returnKeyType='next'
+                errorText={errors.plateNumber}
               />
               {errors.plateNumber && (
-                <HelperText type="error">{errors.plateNumber}</HelperText>
+                <HelperText text={errors.plateNumber} type='error' />
               )}
             </View>
 
             {/* Color Selection */}
             <View style={styles.inputContainer}>
-              <ThemedText variant="body" style={styles.sectionLabel}>
+              <ThemedText variant='body' style={styles.sectionLabel}>
                 Color *
               </ThemedText>
               <View style={styles.optionsGrid}>
-                {colorOptions.map((color) => (
+                {colorOptions.map(color => (
                   <ThemedButton
                     key={color}
                     variant={formData.color === color ? 'primary' : 'outline'}
-                    size="sm"
+                    size='sm'
+                    title={color}
                     onPress={() => handleInputChange('color', color)}
                     style={styles.optionButton}
-                  >
-                    {color}
-                  </ThemedButton>
+                  />
                 ))}
               </View>
-              {errors.color && (
-                <HelperText type="error">{errors.color}</HelperText>
-              )}
+              {errors.color && <HelperText text={errors.color} type='error' />}
             </View>
 
             {/* Type Selection */}
             <View style={styles.inputContainer}>
-              <ThemedText variant="body" style={styles.sectionLabel}>
+              <ThemedText variant='body' style={styles.sectionLabel}>
                 Vehicle Type *
               </ThemedText>
               <View style={styles.optionsGrid}>
-                {vehicleTypes.map((type) => (
+                {vehicleTypes.map(type => (
                   <ThemedButton
                     key={type}
                     variant={formData.type === type ? 'primary' : 'outline'}
-                    size="sm"
+                    size='sm'
+                    title={type}
                     onPress={() => handleInputChange('type', type)}
                     style={styles.optionButton}
-                  >
-                    {type}
-                  </ThemedButton>
+                  />
                 ))}
               </View>
-              {errors.type && (
-                <HelperText type="error">{errors.type}</HelperText>
-              )}
+              {errors.type && <HelperText text={errors.type} type='error' />}
             </View>
 
             {/* Info Text */}
-            <HelperText type="info" style={styles.infoText}>
-              * Required fields. This information helps us provide better
-              service recommendations.
-            </HelperText>
+            <HelperText
+              text='* Required fields. This information helps us provide better service recommendations.'
+              type='default'
+              style={styles.infoText}
+            />
           </ThemedCard>
 
           {/* Add Button */}
           <View style={styles.buttonContainer}>
             <ThemedButton
-              variant="primary"
-              size="lg"
+              variant='primary'
+              size='lg'
+              title={isLoading ? 'Adding Vehicle...' : 'Add Vehicle'}
               onPress={handleAddVehicle}
               loading={isLoading}
               disabled={isLoading}
               style={styles.addButton}
-            >
-              {isLoading ? 'Adding Vehicle...' : 'Add Vehicle'}
-            </ThemedButton>
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

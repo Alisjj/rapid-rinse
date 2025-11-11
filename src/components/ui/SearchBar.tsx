@@ -76,7 +76,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [searchText, setSearchText] = useState(value);
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestionsList, setShowSuggestionsList] = useState(false);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<TextInput>(null);
   const screenWidth = Dimensions.get('window').width;
 
@@ -178,7 +178,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   // Default icons
   const defaultSearchIcon = (
     <MaterialCommunityIcons
-      name="magnify"
+      name='magnify'
       size={dimensions.iconSize}
       color={theme.colors.gray['500']}
     />
@@ -186,7 +186,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   const defaultClearIcon = (
     <MaterialCommunityIcons
-      name="close-circle"
+      name='close-circle'
       size={dimensions.iconSize}
       color={theme.colors.gray['500']}
     />
@@ -194,7 +194,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   // Filter suggestions based on search text
   const filteredSuggestions = suggestions
-    .filter((suggestion) =>
+    .filter(suggestion =>
       suggestion.toLowerCase().includes(searchText.toLowerCase())
     )
     .slice(0, maxSuggestions);
@@ -312,17 +312,17 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           placeholderTextColor={theme.colors.gray['400']}
           autoFocus={autoFocus}
           editable={!disabled}
-          returnKeyType="search"
+          returnKeyType='search'
           onSubmitEditing={() => onSearch?.(searchText)}
           accessibilityLabel={placeholder}
-          accessibilityHint="Enter text to search"
+          accessibilityHint='Enter text to search'
         />
 
         {/* Loading Indicator */}
         {loading && (
           <View style={getIconContainerStyles()}>
             <ActivityIndicator
-              size="small"
+              size='small'
               color={theme.colors.primary['500']}
             />
           </View>
@@ -333,8 +333,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <TouchableOpacity
             onPress={handleClear}
             style={getIconContainerStyles()}
-            accessibilityRole="button"
-            accessibilityLabel="Clear search"
+            accessibilityRole='button'
+            accessibilityLabel='Clear search'
           >
             {clearIcon || defaultClearIcon}
           </TouchableOpacity>
@@ -345,11 +345,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <TouchableOpacity
             onPress={handleSearchPress}
             style={getIconContainerStyles()}
-            accessibilityRole="button"
-            accessibilityLabel="Search"
+            accessibilityRole='button'
+            accessibilityLabel='Search'
           >
             <MaterialCommunityIcons
-              name="magnify"
+              name='magnify'
               size={dimensions.iconSize}
               color={theme.colors.primary['500']}
             />
@@ -380,11 +380,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                   flexDirection: 'row',
                   alignItems: 'center',
                 }}
-                accessibilityRole="button"
+                accessibilityRole='button'
                 accessibilityLabel={`Select suggestion: ${suggestion}`}
               >
                 <MaterialCommunityIcons
-                  name="history"
+                  name='history'
                   size={16}
                   color={theme.colors.gray['400']}
                   style={{ marginRight: theme.spacing.sm }}
@@ -401,7 +401,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                   </Text>
                 </View>
                 <MaterialCommunityIcons
-                  name="arrow-top-left"
+                  name='arrow-top-left'
                   size={16}
                   color={theme.colors.gray['400']}
                 />

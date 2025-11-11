@@ -3,9 +3,9 @@ import { View, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { ThemedText } from '../../components/ui';
 import { Header } from '../../components/navigation';
 import { BusinessCard } from '../../components/business';
-import { MapView } from '../../components/map';
+import { MapViewComponent } from '../../components/map';
 import { useNearbyBusinesses, useMap } from '../../hooks';
-import { Business } from '../../types';
+import { BusinessWithLocation } from '../../services/firebase/businessService';
 
 export const NearbyBusinessesScreen: React.FC = () => {
   const { nearbyBusinesses, loading, refreshNearbyBusinesses } =
@@ -23,33 +23,33 @@ export const NearbyBusinessesScreen: React.FC = () => {
     }
   };
 
-  const renderBusinessItem = ({ item }: { item: Business }) => (
-    <BusinessCard
-      business={item}
-      onPress={() => {
-        // Navigate to business detail
-      }}
-      showDistance
-      style={styles.businessCard}
-    />
+  const renderBusinessItem = ({ item }: { item: BusinessWithLocation }) => (
+    <View style={styles.businessCard}>
+      <BusinessCard
+        business={item}
+        onPress={() => {
+          // Navigate to business detail
+        }}
+      />
+    </View>
   );
 
   return (
     <View style={styles.container}>
       <Header
         title='Nearby Businesses'
-        showBack
-        rightAction={{
-          icon: showMap ? 'list' : 'map',
-          onPress: () => setShowMap(!showMap),
+        showBackButton={true}
+        onBackPress={() => {
+          // Navigate back
         }}
+        rightIcon={showMap ? 'format-list-bulleted' : 'map'}
+        onRightPress={() => setShowMap(!showMap)}
       />
 
       {showMap ? (
-        <MapView
-          businesses={nearbyBusinesses}
-          userLocation={userLocation}
-          onBusinessPress={business => {
+        <MapViewComponent
+          userLocation={userLocation || undefined}
+          onMarkerPress={marker => {
             // Navigate to business detail
           }}
         />

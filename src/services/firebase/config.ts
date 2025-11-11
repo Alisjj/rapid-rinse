@@ -1,40 +1,25 @@
-// Mock Firebase configuration for development
-// This allows the app to run without Firebase setup
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
-// Mock Firebase App
-export const app = {
-  name: '[DEFAULT]',
-  options: {},
-} as any;
-
-// Mock Auth
-export const auth = {
-  currentUser: null,
-  onAuthStateChanged: (callback: any) => {
-    // Call with null user immediately
-    setTimeout(() => callback(null), 0);
-    return () => {}; // unsubscribe function
-  },
-} as any;
-
-// Mock Firestore
-export const db = {} as any;
-
-// Mock Storage
-export const storage = {} as any;
-
-// Firebase config (for reference)
 export const firebaseConfig = {
-  apiKey: 'AIzaSyAriYhHldO265hKtlNIOidMGGUP6e3Ym3Y',
-  authDomain: 'rapidrinse-a4cc9.firebaseapp.com',
-  projectId: 'rapidrinse-a4cc9',
-  storageBucket: 'rapidrinse-a4cc9.firebasestorage.app',
-  messagingSenderId: '56716556651',
-  appId: '1:56716556651:web:2feef65fa6fc281eb1742e',
-  measurementId: 'G-WJW67EQ15Y',
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-export const firestoreAvailable = false;
+const app = initializeApp(firebaseConfig);
 
-console.log('🎭 Using mock Firebase (no backend required)');
-console.log('💡 To use real Firebase, update src/services/firebase/config.ts');
+// Use getAuth instead of initializeAuth - it handles persistence automatically
+export const auth = getAuth(app);
+
+// Use standard getFirestore - React Native handles it better than forced long polling
+export const db = getFirestore(app);
+
+export const storage = getStorage(app);
+export const firestoreAvailable = true;

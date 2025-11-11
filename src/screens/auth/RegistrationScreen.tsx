@@ -2,14 +2,15 @@ import React, { useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Image,
   Alert,
   Animated,
+  TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -227,11 +228,11 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 
   // Handle input changes
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
 
     // Clear general error when user starts typing
     if (errors.general) {
-      setErrors((prev) => ({ ...prev, general: undefined }));
+      setErrors(prev => ({ ...prev, general: undefined }));
     }
 
     // Real-time validation with debounce
@@ -249,10 +250,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
 
     try {
       // Mock registration - replace with actual Firebase auth
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Simulate success
-      console.log('Registration successful:', formData.email);
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Show success message and navigate
       Alert.alert(
@@ -300,7 +298,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps='handled'
         >
           <Animated.View
             style={[
@@ -316,13 +314,13 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
               <Image
                 source={require('../../../assets/logo.png')}
                 style={styles.logo}
-                resizeMode="contain"
+                resizeMode='contain'
               />
-              <ThemedText variant="h2" style={styles.title}>
+              <ThemedText variant='h2' style={styles.title}>
                 Create Account
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={[styles.subtitle, { color: theme.colors.gray['500'] }]}
               >
                 Join RapidRinse to book car wash services
@@ -333,145 +331,138 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
             <View style={styles.form}>
               {/* General Error */}
               {errors.general && (
-                <HelperText type="error" style={styles.generalError}>
-                  {errors.general}
-                </HelperText>
+                <HelperText
+                  text={errors.general}
+                  type='error'
+                  style={styles.generalError}
+                />
               )}
 
               {/* Full Name Input */}
               <View style={styles.inputContainer}>
                 <ThemedTextInput
-                  label="Full Name"
-                  placeholder="Enter your full name"
+                  label='Full Name'
+                  placeholder='Enter your full name'
                   value={formData.fullName}
-                  onChangeText={(value) => handleInputChange('fullName', value)}
-                  autoCapitalize="words"
-                  autoComplete="name"
-                  returnKeyType="next"
+                  onChangeText={value => handleInputChange('fullName', value)}
+                  autoCapitalize='words'
+                  autoComplete='name'
+                  returnKeyType='next'
                   onSubmitEditing={() => emailRef.current?.focus()}
-                  error={!!errors.fullName}
+                  errorText={errors.fullName}
                 />
                 {errors.fullName && (
-                  <HelperText type="error">{errors.fullName}</HelperText>
+                  <HelperText text={errors.fullName} type='error' />
                 )}
               </View>
 
               {/* Email Input */}
               <View style={styles.inputContainer}>
                 <ThemedTextInput
-                  ref={emailRef}
-                  label="Email Address"
-                  placeholder="Enter your email"
+                  label='Email Address'
+                  placeholder='Enter your email'
                   value={formData.email}
-                  onChangeText={(value) => handleInputChange('email', value)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="next"
+                  onChangeText={value => handleInputChange('email', value)}
+                  keyboardType='email-address'
+                  autoCapitalize='none'
+                  autoComplete='email'
+                  returnKeyType='next'
                   onSubmitEditing={() => passwordRef.current?.focus()}
-                  error={!!errors.email}
+                  errorText={errors.email}
                 />
                 {errors.email && (
-                  <HelperText type="error">{errors.email}</HelperText>
+                  <HelperText text={errors.email} type='error' />
                 )}
               </View>
 
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <ThemedTextInput
-                  ref={passwordRef}
-                  label="Password"
-                  placeholder="Create a strong password"
+                  label='Password'
+                  placeholder='Create a strong password'
                   value={formData.password}
-                  onChangeText={(value) => handleInputChange('password', value)}
+                  onChangeText={value => handleInputChange('password', value)}
                   secureTextEntry={!showPassword}
-                  autoComplete="password-new"
-                  returnKeyType="next"
+                  autoComplete='password-new'
+                  returnKeyType='next'
                   onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-                  error={!!errors.password}
+                  errorText={errors.password}
                   rightIcon={showPassword ? 'eye-off' : 'eye'}
                   onRightIconPress={() => setShowPassword(!showPassword)}
                 />
                 {errors.password && (
-                  <HelperText type="error">{errors.password}</HelperText>
+                  <HelperText text={errors.password} type='error' />
                 )}
                 {passwordStrength && formData.password && !errors.password && (
                   <HelperText
-                    type="info"
-                    style={{ color: passwordStrength.color }}
-                  >
-                    Password strength: {passwordStrength.text}
-                  </HelperText>
+                    text={`Password strength: ${passwordStrength.text}`}
+                    type='default'
+                  />
                 )}
               </View>
 
               {/* Confirm Password Input */}
               <View style={styles.inputContainer}>
                 <ThemedTextInput
-                  ref={confirmPasswordRef}
-                  label="Confirm Password"
-                  placeholder="Confirm your password"
+                  label='Confirm Password'
+                  placeholder='Confirm your password'
                   value={formData.confirmPassword}
-                  onChangeText={(value) =>
+                  onChangeText={value =>
                     handleInputChange('confirmPassword', value)
                   }
                   secureTextEntry={!showConfirmPassword}
-                  autoComplete="password-new"
-                  returnKeyType="done"
+                  autoComplete='password-new'
+                  returnKeyType='done'
                   onSubmitEditing={handleRegistration}
-                  error={!!errors.confirmPassword}
+                  errorText={errors.confirmPassword}
                   rightIcon={showConfirmPassword ? 'eye-off' : 'eye'}
                   onRightIconPress={() =>
                     setShowConfirmPassword(!showConfirmPassword)
                   }
                 />
                 {errors.confirmPassword && (
-                  <HelperText type="error">{errors.confirmPassword}</HelperText>
+                  <HelperText text={errors.confirmPassword} type='error' />
                 )}
               </View>
 
               {/* Terms and Conditions */}
               <View style={styles.termsContainer}>
-                <ThemedButton
-                  variant="ghost"
-                  size="sm"
+                <TouchableOpacity
                   onPress={() => setAcceptedTerms(!acceptedTerms)}
-                  leftIcon={acceptedTerms ? 'check-square' : 'square'}
                   style={styles.termsButton}
                 >
                   <ThemedText
-                    variant="caption"
+                    variant='caption'
                     style={{ color: theme.colors.gray['600'] }}
                   >
                     I agree to the{' '}
                     <ThemedText
-                      variant="caption"
+                      variant='caption'
                       style={{ color: theme.colors.primary['500'] }}
                     >
                       Terms of Service
                     </ThemedText>{' '}
                     and{' '}
                     <ThemedText
-                      variant="caption"
+                      variant='caption'
                       style={{ color: theme.colors.primary['500'] }}
                     >
                       Privacy Policy
                     </ThemedText>
                   </ThemedText>
-                </ThemedButton>
+                </TouchableOpacity>
               </View>
 
               {/* Register Button */}
               <ThemedButton
-                variant="primary"
-                size="lg"
+                title='Create Account'
+                variant='primary'
+                size='lg'
                 onPress={handleRegistration}
                 loading={isLoading}
                 disabled={isLoading}
                 style={styles.registerButton}
-              >
-                Create Account
-              </ThemedButton>
+              />
 
               {/* Divider */}
               <View style={styles.dividerContainer}>
@@ -482,7 +473,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
                   ]}
                 />
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={[
                     styles.dividerText,
                     { color: theme.colors.gray['500'] },
@@ -501,25 +492,21 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
               {/* Social Registration Buttons */}
               <View style={styles.socialContainer}>
                 <ThemedButton
-                  variant="outline"
-                  size="md"
+                  title='Google'
+                  variant='outline'
+                  size='md'
                   onPress={() => handleSocialRegistration('google')}
                   style={styles.socialButton}
-                  leftIcon="google"
-                >
-                  Google
-                </ThemedButton>
+                />
 
                 {Platform.OS === 'ios' && (
                   <ThemedButton
-                    variant="outline"
-                    size="md"
+                    title='Apple'
+                    variant='outline'
+                    size='md'
                     onPress={() => handleSocialRegistration('apple')}
                     style={styles.socialButton}
-                    leftIcon="apple"
-                  >
-                    Apple
-                  </ThemedButton>
+                  />
                 )}
               </View>
             </View>
@@ -527,12 +514,12 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({
             {/* Footer */}
             <View style={styles.footer}>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={{ color: theme.colors.gray['500'] }}
               >
                 Already have an account?{' '}
                 <ThemedText
-                  variant="body"
+                  variant='body'
                   style={[
                     styles.footerLink,
                     { color: theme.colors.primary['500'] },

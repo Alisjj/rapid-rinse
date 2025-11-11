@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Image,
   Alert,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -23,11 +24,18 @@ import {
 import { Header } from '@/components/navigation';
 
 // Import types and theme
-import { BookingStackParamList, Service, Business } from '@/types';
+import { BookingStackParamList, Service } from '@/types';
+import { BusinessWithLocation } from '@/services/firebase/businessService';
 import { useTheme } from '@/theme';
+import { formatCurrency } from '@/utils';
 
-// Import services (placeholder for now)
-// import { createBooking, fetchUserVehicles } from '@/services/api';
+// Import Firebase hooks
+import {
+  useAuth,
+  useBusinesses,
+  useServices,
+  useBookingCreation,
+} from '@/hooks';
 
 type BookServiceScreenNavigationProp = NativeStackNavigationProp<
   BookingStackParamList,
@@ -65,71 +73,59 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
   const { businessId, serviceId } = route.params;
   const { theme } = useTheme();
 
+  // Firebase hooks
+  const { user } = useAuth();
+  const { getBusinessById } = useBusinesses();
+  const {
+    loadServices,
+    getServiceById,
+    services,
+    loading: servicesLoading,
+    error: servicesError,
+  } = useServices();
+  const {
+    createBooking,
+    loading: bookingLoading,
+    error: bookingError,
+  } = useBookingCreation(user?.id || '');
+
   // State management
-  const [service, setService] = useState<Service | null>(null);
-  const [business, setBusiness] = useState<Business | null>(null);
+  const [serviceData, setServiceData] = useState<Service | null>(null);
+  const [business, setBusiness] = useState<BusinessWithLocation | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [isBooking, setIsBooking] = useState(false);
   const [formData, setFormData] = useState<BookingFormData>({
     selectedVehicle: null,
     scheduledDate: new Date(Date.now() + 3600000), // 1 hour from now
     notes: '',
   });
+
+  // Load data on mount
+  React.useEffect(() => {
+    loadData();
+  }, [businessId, serviceId]);
+
+  const loadData = async () => {
+    try {
+      // Load business
+      const businessData = await getBusinessById(businessId);
+      setBusiness(businessData);
+
+      // Load services for this business
+      await loadServices(businessId);
+
+      // If serviceId is provided, get the specific service
+      if (serviceId) {
+        const service = getServiceById(serviceId);
+        setServiceData(service);
+      }
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    }
+  };
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isBooking, setIsBooking] = useState(false);
-
-  // Mock data for now - will be replaced with actual API calls
-  const mockService: Service = {
-    id: serviceId || '1',
-    name: 'Premium Exterior Wash',
-    description:
-      'Complete exterior cleaning with premium soap, tire shine, and protective wax coating. Includes wheel cleaning and interior vacuum.',
-    price: 25.99,
-    duration: 45,
-    category: 'exterior',
-  };
-
-  const mockBusiness: Business = {
-    id: businessId,
-    name: 'Quick Wash Express',
-    description: 'Fast and reliable car wash service',
-    address: '123 Main St, City, State 12345',
-    phone: '+1 (555) 123-4567',
-    email: 'info@quickwash.com',
-    ownerId: '1',
-    services: [],
-    operatingHours: {
-      monday: { open: '08:00', close: '18:00', isOpen: true },
-      tuesday: { open: '08:00', close: '18:00', isOpen: true },
-      wednesday: { open: '08:00', close: '18:00', isOpen: true },
-      thursday: { open: '08:00', close: '18:00', isOpen: true },
-      friday: { open: '08:00', close: '18:00', isOpen: true },
-      saturday: { open: '09:00', close: '17:00', isOpen: true },
-      sunday: { open: '10:00', close: '16:00', isOpen: true },
-    },
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  const mockVehicles: Vehicle[] = [
-    {
-      id: '1',
-      make: 'Toyota',
-      model: 'Camry',
-      year: 2020,
-      plateNumber: 'ABC123',
-      color: 'Silver',
-    },
-    {
-      id: '2',
-      make: 'Honda',
-      model: 'Civic',
-      year: 2019,
-      plateNumber: 'XYZ789',
-      color: 'Blue',
-    },
-  ];
 
   // Load data on component mount
   useEffect(() => {
@@ -137,16 +133,45 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
       setLoading(true);
 
       try {
-        // Simulate API calls with mock data
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Load service and business data
+        const [serviceData, businessData] = await Promise.all([
+          serviceId ? getServiceById(serviceId) : null,
+          getBusinessById(businessId),
+        ]);
 
-        setService(mockService);
-        setBusiness(mockBusiness);
+        if (serviceData) {
+          setServiceData(serviceData);
+        }
+
+        if (businessData) {
+          setBusiness(businessData);
+        }
+
+        // For now, use mock vehicles - this should be replaced with user vehicles from Firebase
+        const mockVehicles: Vehicle[] = [
+          {
+            id: '1',
+            make: 'Toyota',
+            model: 'Camry',
+            year: 2020,
+            plateNumber: 'ABC123',
+            color: 'Silver',
+          },
+          {
+            id: '2',
+            make: 'Honda',
+            model: 'Civic',
+            year: 2019,
+            plateNumber: 'XYZ789',
+            color: 'Blue',
+          },
+        ];
+
         setVehicles(mockVehicles);
 
         // Auto-select first vehicle if available
         if (mockVehicles.length > 0) {
-          setFormData((prev) => ({
+          setFormData(prev => ({
             ...prev,
             selectedVehicle: mockVehicles[0],
           }));
@@ -170,7 +195,7 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
-      setFormData((prev) => ({ ...prev, scheduledDate: selectedDate }));
+      setFormData(prev => ({ ...prev, scheduledDate: selectedDate }));
     }
   };
 
@@ -180,19 +205,19 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
       const newDate = new Date(formData.scheduledDate);
       newDate.setHours(selectedTime.getHours());
       newDate.setMinutes(selectedTime.getMinutes());
-      setFormData((prev) => ({ ...prev, scheduledDate: newDate }));
+      setFormData(prev => ({ ...prev, scheduledDate: newDate }));
     }
   };
 
   // Handle vehicle selection
   const handleVehicleSelect = (vehicle: Vehicle) => {
-    setFormData((prev) => ({ ...prev, selectedVehicle: vehicle }));
+    setFormData(prev => ({ ...prev, selectedVehicle: vehicle }));
   };
 
   // Handle booking creation
   const handleBookService = async () => {
     if (!formData.selectedVehicle) {
-      Alert.alert('Error', 'Please select a vehicle for the service.');
+      Alert.alert('Error', 'Please select a vehicle for the serviceData.');
       return;
     }
 
@@ -205,7 +230,7 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
 
     try {
       // Mock booking creation - replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       const bookingId = 'booking_' + Date.now();
 
@@ -237,7 +262,8 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
 
   // Handle add vehicle
   const handleAddVehicle = () => {
-    navigation.navigate('AddVehicle');
+    // Navigate to profile stack for adding vehicle
+    navigation.navigate('Profile' as any, { screen: 'AddVehicle' });
   };
 
   if (loading) {
@@ -245,10 +271,10 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Header title="Book Service" />
+        <Header title='Book Service' />
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Loading service details...
@@ -258,15 +284,15 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
     );
   }
 
-  if (!service || !business) {
+  if (!serviceData || !business) {
     return (
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Header title="Book Service" />
+        <Header title='Book Service' />
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Service not found
@@ -280,56 +306,58 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Header title="Book Service" />
+      <Header title='Book Service' />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Service Header */}
         <ThemedCard style={styles.serviceHeader}>
           <View style={styles.serviceInfo}>
-            <ThemedText variant="h3" style={styles.serviceName}>
-              {service.name}
+            <ThemedText variant='h3' style={styles.serviceName}>
+              {serviceData.name}
             </ThemedText>
             <ThemedText
-              variant="h4"
+              variant='h4'
               style={[
                 styles.servicePrice,
                 { color: theme.colors.primary['600'] },
               ]}
             >
-              ${service.price.toFixed(2)}
+              {formatCurrency(serviceData.price)}
             </ThemedText>
           </View>
           <ThemedText
-            variant="body"
+            variant='body'
             style={[
               styles.serviceDescription,
               { color: theme.colors.gray['600'] },
             ]}
           >
-            {service.description}
+            {serviceData.description}
           </ThemedText>
           <View style={styles.serviceMeta}>
             <View style={styles.serviceMetaItem}>
               <ThemedText
-                variant="caption"
+                variant='caption'
                 style={{ color: theme.colors.gray['500'] }}
               >
                 Duration
               </ThemedText>
-              <ThemedText variant="body">{service.duration} minutes</ThemedText>
+              <ThemedText variant='body'>
+                {serviceData.duration} minutes
+              </ThemedText>
             </View>
             <View style={styles.serviceMetaItem}>
               <ThemedText
-                variant="caption"
+                variant='caption'
                 style={{ color: theme.colors.gray['500'] }}
               >
                 Category
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={{ textTransform: 'capitalize' }}
               >
-                {service.category}
+                {serviceData.category}
               </ThemedText>
             </View>
           </View>
@@ -337,15 +365,15 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
 
         {/* Business Info */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Service Provider
           </ThemedText>
           <View style={styles.businessInfo}>
-            <ThemedText variant="bodyLarge" style={styles.businessName}>
+            <ThemedText variant='bodyLarge' style={styles.businessName}>
               {business.name}
             </ThemedText>
             <ThemedText
-              variant="body"
+              variant='body'
               style={[
                 styles.businessAddress,
                 { color: theme.colors.gray['600'] },
@@ -358,7 +386,7 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
 
         {/* Vehicle Selection */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Select Vehicle
           </ThemedText>
           {vehicles.length > 0 ? (
@@ -367,54 +395,56 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
               showsHorizontalScrollIndicator={false}
               style={styles.vehicleScroll}
             >
-              {vehicles.map((vehicle) => (
-                <ThemedCard
+              {vehicles.map(vehicle => (
+                <TouchableOpacity
                   key={vehicle.id}
-                  style={[
-                    styles.vehicleCard,
-                    {
-                      borderColor:
-                        formData.selectedVehicle?.id === vehicle.id
-                          ? theme.colors.primary['500']
-                          : theme.colors.gray['200'],
-                      borderWidth: 2,
-                    },
-                  ]}
                   onPress={() => handleVehicleSelect(vehicle)}
                 >
-                  <ThemedText variant="bodyLarge" style={styles.vehicleName}>
-                    {vehicle.year} {vehicle.make} {vehicle.model}
-                  </ThemedText>
-                  <ThemedText
-                    variant="body"
+                  <ThemedCard
                     style={[
-                      styles.vehicleDetails,
-                      { color: theme.colors.gray['600'] },
+                      styles.vehicleCard,
+                      {
+                        borderColor:
+                          formData.selectedVehicle?.id === vehicle.id
+                            ? theme.colors.primary['500']
+                            : theme.colors.gray['200'],
+                        borderWidth: 2,
+                      },
                     ]}
                   >
-                    {vehicle.color} • {vehicle.plateNumber}
+                    <ThemedText variant='bodyLarge' style={styles.vehicleName}>
+                      {vehicle.year} {vehicle.make} {vehicle.model}
+                    </ThemedText>
+                    <ThemedText
+                      variant='body'
+                      style={[
+                        styles.vehicleDetails,
+                        { color: theme.colors.gray['600'] },
+                      ]}
+                    >
+                      {vehicle.color} • {vehicle.plateNumber}
+                    </ThemedText>
+                  </ThemedCard>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity onPress={handleAddVehicle}>
+                <ThemedCard style={styles.addVehicleCard}>
+                  <ThemedText
+                    variant='body'
+                    style={[
+                      styles.addVehicleText,
+                      { color: theme.colors.primary['500'] },
+                    ]}
+                  >
+                    + Add Vehicle
                   </ThemedText>
                 </ThemedCard>
-              ))}
-              <ThemedCard
-                style={styles.addVehicleCard}
-                onPress={handleAddVehicle}
-              >
-                <ThemedText
-                  variant="body"
-                  style={[
-                    styles.addVehicleText,
-                    { color: theme.colors.primary['500'] },
-                  ]}
-                >
-                  + Add Vehicle
-                </ThemedText>
-              </ThemedCard>
+              </TouchableOpacity>
             </ScrollView>
           ) : (
             <View style={styles.noVehiclesContainer}>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={[
                   styles.noVehiclesText,
                   { color: theme.colors.gray['500'] },
@@ -423,57 +453,56 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
                 No vehicles found. Add a vehicle to continue.
               </ThemedText>
               <ThemedButton
-                variant="outline"
-                size="md"
+                title='Add Vehicle'
+                variant='outline'
+                size='md'
                 onPress={handleAddVehicle}
                 style={styles.addVehicleButton}
-              >
-                Add Vehicle
-              </ThemedButton>
+              />
             </View>
           )}
         </ThemedCard>
 
         {/* Date & Time Selection */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Select Date & Time
           </ThemedText>
 
           <View style={styles.dateTimeContainer}>
-            <ThemedButton
-              variant="outline"
-              size="md"
+            <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
               style={styles.dateTimeButton}
             >
-              {formData.scheduledDate.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </ThemedButton>
+              <ThemedText variant='body'>
+                {formData.scheduledDate.toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </ThemedText>
+            </TouchableOpacity>
 
-            <ThemedButton
-              variant="outline"
-              size="md"
+            <TouchableOpacity
               onPress={() => setShowTimePicker(true)}
               style={styles.dateTimeButton}
             >
-              {formData.scheduledDate.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-              })}
-            </ThemedButton>
+              <ThemedText variant='body'>
+                {formData.scheduledDate.toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+              </ThemedText>
+            </TouchableOpacity>
           </View>
 
           {showDatePicker && (
             <DateTimePicker
               value={formData.scheduledDate}
-              mode="date"
-              display="default"
+              mode='date'
+              display='default'
               onChange={handleDateChange}
               minimumDate={new Date()}
             />
@@ -482,8 +511,8 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
           {showTimePicker && (
             <DateTimePicker
               value={formData.scheduledDate}
-              mode="time"
-              display="default"
+              mode='time'
+              display='default'
               onChange={handleTimeChange}
             />
           )}
@@ -491,45 +520,45 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
 
         {/* Special Instructions */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Special Instructions (Optional)
           </ThemedText>
           <ThemedTextInput
-            placeholder="Any special requests or instructions..."
+            placeholder='Any special requests or instructions...'
             value={formData.notes}
-            onChangeText={(text) =>
-              setFormData((prev) => ({ ...prev, notes: text }))
+            onChangeText={text =>
+              setFormData(prev => ({ ...prev, notes: text }))
             }
             multiline
             numberOfLines={3}
             style={styles.notesInput}
           />
-          <HelperText type="info">
-            Let us know if you have any specific requirements for your car wash
-            service.
-          </HelperText>
+          <HelperText
+            text='Let us know if you have any specific requirements for your car wash service.'
+            type='default'
+          />
         </ThemedCard>
 
         {/* Booking Summary */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Booking Summary
           </ThemedText>
           <View style={styles.summaryRow}>
-            <ThemedText variant="body">Service</ThemedText>
-            <ThemedText variant="body">{service.name}</ThemedText>
+            <ThemedText variant='body'>Service</ThemedText>
+            <ThemedText variant='body'>{serviceData.name}</ThemedText>
           </View>
           <View style={styles.summaryRow}>
-            <ThemedText variant="body">Vehicle</ThemedText>
-            <ThemedText variant="body">
+            <ThemedText variant='body'>Vehicle</ThemedText>
+            <ThemedText variant='body'>
               {formData.selectedVehicle
                 ? `${formData.selectedVehicle.year} ${formData.selectedVehicle.make} ${formData.selectedVehicle.model}`
                 : 'Not selected'}
             </ThemedText>
           </View>
           <View style={styles.summaryRow}>
-            <ThemedText variant="body">Date & Time</ThemedText>
-            <ThemedText variant="body">
+            <ThemedText variant='body'>Date & Time</ThemedText>
+            <ThemedText variant='body'>
               {formData.scheduledDate.toLocaleDateString()} at{' '}
               {formData.scheduledDate.toLocaleTimeString('en-US', {
                 hour: 'numeric',
@@ -539,14 +568,14 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
             </ThemedText>
           </View>
           <View style={[styles.summaryRow, styles.totalRow]}>
-            <ThemedText variant="bodyLarge" style={{ fontWeight: '600' }}>
+            <ThemedText variant='bodyLarge' style={{ fontWeight: '600' }}>
               Total
             </ThemedText>
             <ThemedText
-              variant="bodyLarge"
+              variant='bodyLarge'
               style={{ fontWeight: '600', color: theme.colors.primary['600'] }}
             >
-              ${service.price.toFixed(2)}
+              {formatCurrency(serviceData.price)}
             </ThemedText>
           </View>
         </ThemedCard>
@@ -554,15 +583,14 @@ const BookServiceScreen: React.FC<BookServiceScreenProps> = ({
         {/* Book Button */}
         <View style={styles.bookButtonContainer}>
           <ThemedButton
-            variant="primary"
-            size="lg"
+            title={isBooking ? 'Creating Booking...' : 'Book Service'}
+            variant='primary'
+            size='lg'
             onPress={handleBookService}
             loading={isBooking}
             disabled={isBooking || !formData.selectedVehicle}
             style={styles.bookButton}
-          >
-            {isBooking ? 'Creating Booking...' : 'Book Service'}
-          </ThemedButton>
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

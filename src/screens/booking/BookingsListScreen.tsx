@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   RefreshControl,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -139,7 +139,7 @@ const BookingsListScreen: React.FC<BookingsListScreenProps> = ({
 
     try {
       // Simulate API call with mock data
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setBookings(mockBookings);
     } catch (error) {
       console.error('Error loading bookings:', error);
@@ -156,16 +156,14 @@ const BookingsListScreen: React.FC<BookingsListScreenProps> = ({
 
     // Apply status filter
     if (selectedFilter !== 'all') {
-      filtered = filtered.filter(
-        (booking) => booking.status === selectedFilter
-      );
+      filtered = filtered.filter(booking => booking.status === selectedFilter);
     }
 
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (booking) =>
+        booking =>
           booking.id.toLowerCase().includes(query) ||
           booking.notes?.toLowerCase().includes(query)
       );
@@ -218,11 +216,11 @@ const BookingsListScreen: React.FC<BookingsListScreenProps> = ({
           data={filterOptions}
           horizontal
           showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.key}
+          keyExtractor={item => item.key}
           contentContainerStyle={styles.filterTabs}
           renderItem={({ item }) => (
             <ThemedText
-              variant="button"
+              variant='button'
               style={[
                 styles.filterTab,
                 {
@@ -248,23 +246,21 @@ const BookingsListScreen: React.FC<BookingsListScreenProps> = ({
 
   // Render booking item
   const renderBookingItem = ({ item }: { item: Booking }) => (
-    <BookingCard
-      booking={item}
-      onPress={() => handleBookingPress(item)}
-      style={styles.bookingCard}
-    />
+    <View style={styles.bookingCard}>
+      <BookingCard booking={item} onPress={() => handleBookingPress(item)} />
+    </View>
   );
 
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <ThemedText variant="h4" style={styles.emptyTitle}>
+      <ThemedText variant='h4' style={styles.emptyTitle}>
         {selectedFilter === 'all'
           ? 'No bookings yet'
           : `No ${selectedFilter} bookings`}
       </ThemedText>
       <ThemedText
-        variant="body"
+        variant='body'
         style={[styles.emptyMessage, { color: theme.colors.gray['500'] }]}
       >
         {selectedFilter === 'all'
@@ -277,7 +273,7 @@ const BookingsListScreen: React.FC<BookingsListScreenProps> = ({
   // Render loading state
   const renderLoadingState = () => (
     <View style={styles.loadingContainer}>
-      <ThemedText variant="body" style={{ color: theme.colors.gray['500'] }}>
+      <ThemedText variant='body' style={{ color: theme.colors.gray['500'] }}>
         Loading your bookings...
       </ThemedText>
     </View>
@@ -287,15 +283,13 @@ const BookingsListScreen: React.FC<BookingsListScreenProps> = ({
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Header title="My Bookings" showBackButton={false} />
+      <Header title='My Bookings' showBackButton={false} />
 
       <View style={styles.content}>
         {/* Search Bar */}
-        <SearchBar
-          placeholder="Search bookings..."
-          onSearch={handleSearch}
-          style={styles.searchBar}
-        />
+        <View style={styles.searchBar}>
+          <SearchBar placeholder='Search bookings...' onSearch={handleSearch} />
+        </View>
 
         {/* Filter Tabs */}
         {renderFilterTabs()}
@@ -307,7 +301,7 @@ const BookingsListScreen: React.FC<BookingsListScreenProps> = ({
           <FlatList
             data={filteredBookings}
             renderItem={renderBookingItem}
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
             refreshControl={

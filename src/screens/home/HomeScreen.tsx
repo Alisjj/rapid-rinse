@@ -3,10 +3,10 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   RefreshControl,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -18,12 +18,12 @@ import { BusinessCard, BookingCard } from '@/components/business';
 import { ThemedText, ThemedCard } from '@/components/ui';
 
 // Import types and theme
-import { HomeStackParamList, Business, Booking, User } from '@/types';
+import { HomeStackParamList, Booking, User } from '@/types';
+import { BusinessWithLocation } from '@/services/firebase/businessService';
 import { useTheme } from '@/theme';
 
-// Import services (placeholder for now)
-// import { fetchUserData, fetchRecentBookings, fetchNearbyBusinesses } from '@/services/api';
-// import { initializeLocation } from '@/services/location';
+// Import Firebase hooks
+import { useUser, useBookings, useNearbyBusinesses } from '@/hooks';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   HomeStackParamList,
@@ -66,13 +66,13 @@ class HomeScreenErrorBoundary extends React.Component<
           }}
         >
           <ThemedText
-            variant="h3"
+            variant='h3'
             style={{ textAlign: 'center', marginBottom: 16 }}
           >
             Something went wrong
           </ThemedText>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ textAlign: 'center', marginBottom: 20 }}
           >
             We're sorry, but something unexpected happened. Please try
@@ -99,7 +99,7 @@ const WelcomeBanner: React.FC<{ userName?: string }> = ({ userName }) => {
 
   return (
     <ThemedCard
-      variant="elevated"
+      variant='elevated'
       style={[
         styles.welcomeBanner,
         { backgroundColor: theme.colors.primary['500'] },
@@ -107,19 +107,19 @@ const WelcomeBanner: React.FC<{ userName?: string }> = ({ userName }) => {
     >
       <View style={styles.welcomeContent}>
         <ThemedText
-          variant="bodyLarge"
+          variant='bodyLarge'
           style={[styles.greeting, { color: theme.colors.gray['50'] }]}
         >
           Hi {userName || 'there'},
         </ThemedText>
         <ThemedText
-          variant="h3"
+          variant='h3'
           style={[styles.welcomeMessage, { color: theme.colors.gray['50'] }]}
         >
           {getGreeting()}
         </ThemedText>
         <ThemedText
-          variant="caption"
+          variant='caption'
           style={[styles.welcomeSubtext, { color: theme.colors.gray['100'] }]}
         >
           Ready to get your car washed?
@@ -131,9 +131,9 @@ const WelcomeBanner: React.FC<{ userName?: string }> = ({ userName }) => {
 
 // Nearby Businesses Section
 const NearbyBusinessesSection: React.FC<{
-  businesses: Business[];
+  businesses: BusinessWithLocation[];
   onViewAll: () => void;
-  onBusinessPress: (business: Business) => void;
+  onBusinessPress: (business: BusinessWithLocation) => void;
   loading: boolean;
 }> = ({ businesses, onViewAll, onBusinessPress, loading }) => {
   const { theme } = useTheme();
@@ -141,9 +141,9 @@ const NearbyBusinessesSection: React.FC<{
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <ThemedText variant="h4">Nearby Car Washes</ThemedText>
+        <ThemedText variant='h4'>Nearby Car Washes</ThemedText>
         <ThemedText
-          variant="button"
+          variant='button'
           style={{ color: theme.colors.primary['500'] }}
           onPress={onViewAll}
         >
@@ -154,7 +154,7 @@ const NearbyBusinessesSection: React.FC<{
       {loading ? (
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Finding nearby car washes...
@@ -166,25 +166,24 @@ const NearbyBusinessesSection: React.FC<{
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.businessesScroll}
         >
-          {businesses.map((business) => (
+          {businesses.map(business => (
             <BusinessCard
               key={business.id}
               business={business}
               onPress={() => onBusinessPress(business)}
-              style={styles.businessCard}
             />
           ))}
         </ScrollView>
       ) : (
         <ThemedCard style={styles.emptyStateCard}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ textAlign: 'center', color: theme.colors.gray['500'] }}
           >
             No car washes found nearby
           </ThemedText>
           <ThemedText
-            variant="caption"
+            variant='caption'
             style={{
               textAlign: 'center',
               color: theme.colors.gray['400'],
@@ -211,9 +210,9 @@ const RecentActivitySection: React.FC<{
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <ThemedText variant="h4">Recent Activity</ThemedText>
+        <ThemedText variant='h4'>Recent Activity</ThemedText>
         <ThemedText
-          variant="button"
+          variant='button'
           style={{ color: theme.colors.primary['500'] }}
           onPress={onViewAll}
         >
@@ -224,7 +223,7 @@ const RecentActivitySection: React.FC<{
       {loading ? (
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Loading your bookings...
@@ -232,25 +231,24 @@ const RecentActivitySection: React.FC<{
         </View>
       ) : bookings.length > 0 ? (
         <View>
-          {bookings.slice(0, 3).map((booking) => (
+          {bookings.slice(0, 3).map(booking => (
             <BookingCard
               key={booking.id}
               booking={booking}
               onPress={() => onBookingPress(booking)}
-              style={styles.bookingCard}
             />
           ))}
         </View>
       ) : (
         <ThemedCard style={styles.emptyStateCard}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ textAlign: 'center', color: theme.colors.gray['500'] }}
           >
             No recent bookings
           </ThemedText>
           <ThemedText
-            variant="caption"
+            variant='caption'
             style={{
               textAlign: 'center',
               color: theme.colors.gray['400'],
@@ -268,82 +266,47 @@ const RecentActivitySection: React.FC<{
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { theme } = useTheme();
 
-  // State management
-  const [userData, setUserData] = useState<User | null>(null);
-  const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
-  const [nearbyBusinesses, setNearbyBusinesses] = useState<Business[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState({
-    user: true,
-    bookings: true,
-    businesses: true,
-  });
+  // Firebase hooks
+  const { userProfile, loading: userLoading, error: userError } = useUser();
+  const {
+    bookings: recentBookings,
+    loading: bookingsLoading,
+    error: bookingsError,
+    loadBookings,
+    refreshBookings,
+  } = useBookings();
+  const {
+    nearbyBusinesses,
+    loading: businessesLoading,
+    error: businessesError,
+    refreshNearbyBusinesses,
+  } = useNearbyBusinesses();
 
-  // Mock data for now - will be replaced with actual API calls
-  const mockUserData: User = {
-    id: '1',
-    email: 'user@example.com',
-    name: 'John Doe',
-    phone: '+1234567890',
-    role: 'customer',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+  // Combined loading state
+  const loading = {
+    user: userLoading,
+    bookings: bookingsLoading,
+    businesses: businessesLoading,
   };
+  const [refreshing, setRefreshing] = useState(false);
 
-  const mockBookings: Booking[] = [
-    {
-      id: '1',
-      customerId: '1',
-      businessId: '1',
-      serviceId: '1',
-      scheduledDate: new Date(),
-      status: 'completed',
-      totalAmount: 25.99,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
-
-  const mockBusinesses: Business[] = [
-    {
-      id: '1',
-      name: 'Quick Wash Express',
-      description: 'Fast and reliable car wash service',
-      address: '123 Main St, City, State',
-      phone: '+1234567890',
-      email: 'info@quickwash.com',
-      ownerId: '1',
-      services: [],
-      operatingHours: {},
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
+  // Firebase data is loaded automatically by hooks
 
   // Data loading function
   const loadData = useCallback(async () => {
     setRefreshing(true);
-    setLoading({ user: true, bookings: true, businesses: true });
 
     try {
-      // Simulate API calls with mock data
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setUserData(mockUserData);
-      setLoading((prev) => ({ ...prev, user: false }));
-
-      setRecentBookings(mockBookings);
-      setLoading((prev) => ({ ...prev, bookings: false }));
-
-      setNearbyBusinesses(mockBusinesses);
-      setLoading((prev) => ({ ...prev, businesses: false }));
+      // Load bookings data
+      await loadBookings();
+      // Nearby businesses are loaded automatically by the hook
     } catch (error) {
       console.error('Error loading data:', error);
       Alert.alert('Error', 'Failed to load data. Please try again.');
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [loadBookings]);
 
   // Load data on component mount and focus
   useEffect(() => {
@@ -364,16 +327,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   };
 
-  const handleBusinessPress = (business: Business) => {
+  const handleBusinessPress = (business: BusinessWithLocation) => {
     navigation.navigate('BusinessDetails', { businessId: business.id });
   };
 
   const handleBookingPress = (booking: Booking) => {
-    navigation.navigate('BookingDetails', { bookingId: booking.id });
+    navigation
+      .getParent()
+      ?.navigate('BookingDetails', { bookingId: booking.id });
   };
 
   const handleViewAllBusinesses = () => {
-    navigation.navigate('NearbyBusinesses');
+    navigation.getParent()?.navigate('NearbyBusinesses');
   };
 
   const handleViewAllBookings = () => {
@@ -391,7 +356,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
         <Header
-          title="RapidRinse"
+          title='RapidRinse'
           showNotificationBadge
           onRightPress={() => {
             // Handle notification press
@@ -410,12 +375,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             />
           }
         >
-          <WelcomeBanner userName={userData?.name?.split(' ')[0]} />
+          <WelcomeBanner userName={userProfile?.fullName?.split(' ')[0]} />
 
           <SearchBar
-            placeholder="Search for car wash services..."
+            placeholder='Search for car wash services...'
             onSearch={handleSearch}
-            style={styles.searchBar}
           />
 
           <NearbyBusinessesSection

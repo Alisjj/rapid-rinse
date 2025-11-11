@@ -89,6 +89,7 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
     const baseStyles: ViewStyle = {
       marginBottom: theme.spacing.sm,
       minHeight,
+      maxHeight: size === 'sm' ? 32 : size === 'lg' ? 48 : 40,
     };
 
     switch (variant) {
@@ -134,9 +135,9 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
   // Get input styles based on size
   const getInputStyles = (): TextStyle => {
     const baseStyles: TextStyle = {
-      flex: 1,
       color: theme.colors.text,
       fontSize: 16,
+      minHeight: 40,
     };
 
     switch (size) {
@@ -146,6 +147,7 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
           paddingHorizontal: theme.spacing.sm,
           paddingVertical: theme.spacing.xs,
           fontSize: 14,
+          minHeight: 32,
         };
       case 'md':
         return {
@@ -153,6 +155,7 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
           paddingHorizontal: theme.spacing.md,
           paddingVertical: theme.spacing.sm,
           fontSize: 16,
+          minHeight: 40,
         };
       case 'lg':
         return {
@@ -160,6 +163,7 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
           paddingHorizontal: theme.spacing.lg,
           paddingVertical: theme.spacing.md,
           fontSize: 18,
+          minHeight: 48,
         };
       default:
         return baseStyles;
@@ -239,7 +243,11 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
           <View
             style={{
               marginLeft: theme.spacing.sm,
-              marginRight: theme.spacing.xs,
+              marginRight: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              minWidth: 24,
+              height: '100%',
             }}
           >
             {leftIcon}
@@ -260,10 +268,11 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
         <TextInput
           style={[
             inputStyles,
+            { flex: 1 },
             inputStyle,
             disabled && { opacity: 0.6 },
-            leftIcon ? { paddingLeft: 0 } : undefined,
-            rightIcon ? { paddingRight: 0 } : undefined,
+            leftIcon ? { paddingLeft: theme.spacing.sm } : undefined,
+            rightIcon ? { paddingRight: theme.spacing.sm } : undefined,
           ].filter(Boolean)}
           value={value}
           onChangeText={handleChangeText}
@@ -281,7 +290,12 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
             disabled={!onRightIconPress}
             style={{
               marginRight: theme.spacing.sm,
-              marginLeft: theme.spacing.xs,
+              marginLeft: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              minWidth: 24,
+              height: '100%',
+              paddingHorizontal: theme.spacing.xs,
             }}
           >
             {rightIcon}

@@ -142,7 +142,7 @@ export class LocationService {
           timeInterval: options?.timeInterval || 10000, // 10 seconds
           distanceInterval: options?.distanceInterval || 50, // 50 meters
         },
-        async (location) => {
+        async location => {
           const coordinates: Coordinates = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -195,7 +195,7 @@ export class LocationService {
   static async geocodeAddress(address: string): Promise<Coordinates[]> {
     try {
       const locations = await Location.geocodeAsync(address);
-      return locations.map((location) => ({
+      return locations.map(location => ({
         latitude: location.latitude,
         longitude: location.longitude,
       }));

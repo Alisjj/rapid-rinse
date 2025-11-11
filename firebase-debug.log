@@ -1,0 +1,94 @@
+[debug] [2025-11-11T02:58:59.818Z] ----------------------------------------------------------------------
+[debug] [2025-11-11T02:58:59.820Z] Command:       /opt/homebrew/Cellar/node/24.9.0/bin/node /opt/homebrew/bin/firebase login
+[debug] [2025-11-11T02:58:59.820Z] CLI Version:   14.24.1
+[debug] [2025-11-11T02:58:59.820Z] Platform:      darwin
+[debug] [2025-11-11T02:58:59.820Z] Node Version:  v24.9.0
+[debug] [2025-11-11T02:58:59.820Z] Time:          Tue Nov 11 2025 03:58:59 GMT+0100 (West Africa Standard Time)
+[debug] [2025-11-11T02:58:59.821Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-11-11T02:58:59.822Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] i  The Firebase CLI’s MCP server feature can optionally make use of Gemini in Firebase. Learn more about Gemini in Firebase and how it uses your data: https://firebase.google.com/docs/gemini-in-firebase#how-gemini-in-firebase-uses-your-data 
+[debug] [2025-11-11T02:59:00.463Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-11-11T02:59:00.464Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[info] 
+[info] i  Firebase optionally collects CLI and Emulator Suite usage and error reporting information to help improve our products. Data is collected in accordance with Google's privacy policy (https://policies.google.com/privacy) and is not used to identify you. 
+[info] 
+[info] i  To change your preferences at any time, run `firebase logout` and `firebase login` again. 
+[info] 
+[info] Visit this URL on this device to log in:
+[info] https://accounts.google.com/o/oauth2/auth?client_id=563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com&scope=email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloudplatformprojects.readonly%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Ffirebase%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&response_type=code&state=837639854&redirect_uri=http%3A%2F%2Flocalhost%3A9005
+[info] 
+[info] Waiting for authentication...
+[debug] [2025-11-11T02:59:12.220Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[debug] [2025-11-11T02:59:12.221Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"c2e48ab1-3c3d-4f41-8497-08bfb6e5393b"}
+[debug] [2025-11-11T02:59:13.209Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[debug] [2025-11-11T02:59:13.209Z] <<< [apiv2][body] POST https://auth.firebase.tools/attest {"token":"2LOXDBicDSmBhPjhuYlE64zW9GhXVUdtwIUgRQLCaDs"}
+[info] 
+[info] To sign in to the Firebase CLI:
+[info] 
+[info] 1. Take note of your session ID:
+[info] 
+[info]    C2E48
+[info] 
+[info] 2. Visit the URL below on any device and follow the instructions to get your code:
+[info] 
+[info]    https://auth.firebase.tools/login?code_challenge=Qml9Oog9R1c9NR7eYIOqOH4QOKWxCXbghClO-PzYbLI&session=c2e48ab1-3c3d-4f41-8497-08bfb6e5393b&attest=2LOXDBicDSmBhPjhuYlE64zW9GhXVUdtwIUgRQLCaDs
+[info] 
+[info] 3. Paste or enter the authorization code below once you have it:
+[info] 
+[debug] [2025-11-11T02:59:45.329Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (/opt/homebrew/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:101:37)
+    at Interface.emit (node:events:508:28)
+    at Interface.emit (node:domain:489:12)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1317:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:284:20)
+    at ReadStream.emit (node:events:520:35)
+    at ReadStream.emit (node:domain:489:12)
+    at emitKeys (node:internal/readline/utils:371:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-11-11T02:59:50.627Z] ----------------------------------------------------------------------
+[debug] [2025-11-11T02:59:50.630Z] Command:       /opt/homebrew/Cellar/node/24.9.0/bin/node /opt/homebrew/bin/firebase login --no-localhost
+[debug] [2025-11-11T02:59:50.630Z] CLI Version:   14.24.1
+[debug] [2025-11-11T02:59:50.630Z] Platform:      darwin
+[debug] [2025-11-11T02:59:50.630Z] Node Version:  v24.9.0
+[debug] [2025-11-11T02:59:50.630Z] Time:          Tue Nov 11 2025 03:59:50 GMT+0100 (West Africa Standard Time)
+[debug] [2025-11-11T02:59:50.630Z] ----------------------------------------------------------------------
+[debug] 
+[info] i  The Firebase CLI’s MCP server feature can optionally make use of Gemini in Firebase. Learn more about Gemini in Firebase and how it uses your data: https://firebase.google.com/docs/gemini-in-firebase#how-gemini-in-firebase-uses-your-data 
+[info] 
+[info] i  Firebase optionally collects CLI and Emulator Suite usage and error reporting information to help improve our products. Data is collected in accordance with Google's privacy policy (https://policies.google.com/privacy) and is not used to identify you. 
+[info] 
+[info] i  To change your preferences at any time, run `firebase logout` and `firebase login` again. 
+[debug] [2025-11-11T02:59:57.387Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[debug] [2025-11-11T02:59:57.388Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"532b5e66-24e6-44b1-a02a-1575e6487241"}
+[debug] [2025-11-11T02:59:58.440Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[debug] [2025-11-11T02:59:58.440Z] <<< [apiv2][body] POST https://auth.firebase.tools/attest {"token":"UngGgYkBiVGp5xcRSBGSDpyEMP9A6YzvgcvIlaWb0Fw"}
+[info] 
+[info] To sign in to the Firebase CLI:
+[info] 
+[info] 1. Take note of your session ID:
+[info] 
+[info]    532B5
+[info] 
+[info] 2. Visit the URL below on any device and follow the instructions to get your code:
+[info] 
+[info]    https://auth.firebase.tools/login?code_challenge=23uPNy0wIWrNbyjPp0NPTK-9puZcAIQ7W1gAj0T85bo&session=532b5e66-24e6-44b1-a02a-1575e6487241&attest=UngGgYkBiVGp5xcRSBGSDpyEMP9A6YzvgcvIlaWb0Fw
+[info] 
+[info] 3. Paste or enter the authorization code below once you have it:
+[info] 
+[debug] [2025-11-11T03:00:45.302Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (/opt/homebrew/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:101:37)
+    at Interface.emit (node:events:508:28)
+    at Interface.emit (node:domain:489:12)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1317:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:284:20)
+    at ReadStream.emit (node:events:520:35)
+    at ReadStream.emit (node:domain:489:12)
+    at emitKeys (node:internal/readline/utils:371:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+[error] 
+[error] Error: An unexpected error has occurred.

@@ -1,332 +1,489 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   Image,
+  Linking,
+  Alert,
+  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/theme';
 import { ThemedText, ThemedCard, ThemedButton } from '@/components/ui';
 import { Header } from '@/components/navigation';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { formatCurrency } from '@/utils';
+import { useBusinesses } from '@/hooks';
+import { BusinessWithLocation } from '@/services/firebase/businessService';
 
-// Mock business data
-const mockBusinessDetails: Record<string, any> = {
-  '1': {
-    id: '1',
-    name: 'Quick Wash Express',
-    description:
-      'Fast and reliable car wash service with state-of-the-art equipment',
-    address: '123 Main St, City, State 12345',
-    phone: '+1 (234) 567-8900',
-    email: 'info@quickwash.com',
-    rating: 4.5,
-    reviewCount: 128,
-    distance: 0.8,
-    isOpen: true,
-    hours: {
-      monday: '8:00 AM - 8:00 PM',
-      tuesday: '8:00 AM - 8:00 PM',
-      wednesday: '8:00 AM - 8:00 PM',
-      thursday: '8:00 AM - 8:00 PM',
-      friday: '8:00 AM - 9:00 PM',
-      saturday: '9:00 AM - 9:00 PM',
-      sunday: '10:00 AM - 6:00 PM',
-    },
-    services: [
-      { id: '1', name: 'Express Wash', price: 15.99, duration: 15 },
-      { id: '2', name: 'Standard Wash', price: 25.99, duration: 30 },
-      { id: '3', name: 'Premium Wash', price: 35.99, duration: 45 },
-      { id: '4', name: 'Full Detail', price: 89.99, duration: 120 },
-    ],
-  },
-  '2': {
-    id: '2',
-    name: 'Premium Auto Spa',
-    description:
-      'Luxury car detailing and wash services for discerning customers',
-    address: '456 Oak Ave, City, State 12345',
-    phone: '+1 (234) 567-8901',
-    email: 'info@premiumspa.com',
-    rating: 4.8,
-    reviewCount: 256,
-    distance: 1.2,
-    isOpen: true,
-    hours: {
-      monday: '9:00 AM - 7:00 PM',
-      tuesday: '9:00 AM - 7:00 PM',
-      wednesday: '9:00 AM - 7:00 PM',
-      thursday: '9:00 AM - 7:00 PM',
-      friday: '9:00 AM - 8:00 PM',
-      saturday: '10:00 AM - 8:00 PM',
-      sunday: 'Closed',
-    },
-    services: [
-      { id: '1', name: 'Luxury Wash', price: 45.99, duration: 45 },
-      { id: '2', name: 'Premium Detail', price: 129.99, duration: 180 },
-      { id: '3', name: 'Interior Deep Clean', price: 79.99, duration: 90 },
-      { id: '4', name: 'Paint Protection', price: 199.99, duration: 240 },
-    ],
-  },
-};
+// Firebase data is loaded automatically by the useBusinesses hook
 
 export default function BusinessDetail() {
   const { theme } = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { getBusinessById, error, clearError } = useBusinesses();
 
-  const business =
-    mockBusinessDetails[id as string] || mockBusinessDetails['1'];
+  const [business, setBusiness] = useState<BusinessWithLocation | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <Header
-        title={business.name}
-        showBackButton
-        onBackPress={() => router.back()}
-      />
+  useEffect(() => {
+    loadBusinessDetails();
+  }, [id]);
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Business Info Card */}
-        <ThemedCard variant='elevated' style={styles.card}>
-          <View style={styles.ratingRow}>
-            <View style={styles.rating}>
-              <MaterialCommunityIcons
-                name='star'
-                size={20}
-                color={theme.colors.warning['500']}
-              />
-              <ThemedText variant='h4' style={{ marginLeft: 4 }}>
-                {business.rating}
-              </ThemedText>
-              <ThemedText
-                variant='caption'
-                colorVariant='gray'
-                colorShade='600'
-                style={{ marginLeft: 4 }}
-              >
-                ({business.reviewCount} reviews)
-              </ThemedText>
-            </View>
-            <View style={styles.statusBadge}>
-              <View
-                style={[
-                  styles.statusDot,
-                  {
-                    backgroundColor: business.isOpen
-                      ? theme.colors.success['500']
-                      : theme.colors.error['500'],
-                  },
-                ]}
-              />
-              <ThemedText variant='caption' style={{ fontWeight: '600' }}>
-                {business.isOpen ? 'Open Now' : 'Closed'}
-              </ThemedText>
-            </View>
-          </View>
+  const loadBusinessDetails = async () => {
+    try {
+      setLoading(true);
+      clearError();
+      const businessData = await getBusinessById(id as string);
 
+      if (businessData) {
+        setBusiness(businessData);
+      } else {
+        Alert.alert('Error', 'Business not found', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Failed to load business details', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCall = async () => {
+    if (!business) return;
+
+    const phoneNumber = business.phone.replace(/\s/g, '');
+    const url = `tel:${phoneNumber}`;
+
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Error', 'Unable to make phone call');
+    }
+  };
+
+  const handleGetDirections = async () => {
+    if (!business) return;
+
+    try {
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        business.address
+      )}`;
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Error', 'Unable to open maps');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Failed to open directions');
+    }
+  };
+
+  const isBusinessOpen = (business: BusinessWithLocation): boolean => {
+    const now = new Date();
+    const dayOfWeek = now
+      .toLocaleDateString('en-US', { weekday: 'long' })
+      .toLowerCase();
+    const currentTime = now.toTimeString().slice(0, 5);
+
+    const todayHours = business.operatingHours[dayOfWeek];
+    if (!todayHours || !todayHours.isOpen) {
+      return false;
+    }
+
+    return currentTime >= todayHours.open && currentTime <= todayHours.close;
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <Header
+          title='Business Details'
+          showBackButton
+          onBackPress={() => router.back()}
+        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size='large' color={theme.colors.primary['500']} />
           <ThemedText
             variant='body'
             colorVariant='gray'
-            colorShade='700'
+            colorShade='600'
             style={{ marginTop: 12 }}
           >
-            {business.description}
+            Loading business details...
           </ThemedText>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons
-              name='map-marker'
-              size={20}
-              color={theme.colors.primary['500']}
-            />
-            <ThemedText variant='body' style={{ marginLeft: 8, flex: 1 }}>
-              {business.address}
-            </ThemedText>
-          </View>
-
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons
-              name='phone'
-              size={20}
-              color={theme.colors.primary['500']}
-            />
-            <ThemedText variant='body' style={{ marginLeft: 8 }}>
-              {business.phone}
-            </ThemedText>
-          </View>
-
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons
-              name='email'
-              size={20}
-              color={theme.colors.primary['500']}
-            />
-            <ThemedText variant='body' style={{ marginLeft: 8 }}>
-              {business.email}
-            </ThemedText>
-          </View>
-        </ThemedCard>
-
-        {/* Map View */}
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Location
+  if (!business) {
+    return (
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <Header
+          title='Business Details'
+          showBackButton
+          onBackPress={() => router.back()}
+        />
+        <View style={styles.emptyContainer}>
+          <MaterialCommunityIcons
+            name='store-off'
+            size={48}
+            color={theme.colors.gray['400']}
+          />
+          <ThemedText
+            variant='body'
+            colorVariant='gray'
+            colorShade='600'
+            style={{ marginTop: 12 }}
+          >
+            Business not found
           </ThemedText>
-          <ThemedCard variant='elevated' style={styles.mapCard}>
-            <View style={styles.mapPlaceholder}>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const isOpen = isBusinessOpen(business);
+
+  return (
+    <ProtectedRoute>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <Header
+          title={business.name}
+          showBackButton
+          onBackPress={() => router.back()}
+        />
+
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {error && (
+            <View style={styles.errorContainer}>
+              <ThemedCard
+                variant='elevated'
+                style={[
+                  styles.errorCard,
+                  { backgroundColor: theme.colors.error['50'] },
+                ]}
+              >
+                <View style={styles.errorContent}>
+                  <MaterialCommunityIcons
+                    name='alert-circle'
+                    size={24}
+                    color={theme.colors.error['500']}
+                  />
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <ThemedText
+                      variant='body'
+                      style={{ color: theme.colors.error['700'] }}
+                    >
+                      {error}
+                    </ThemedText>
+                  </View>
+                  <TouchableOpacity onPress={clearError}>
+                    <MaterialCommunityIcons
+                      name='close'
+                      size={20}
+                      color={theme.colors.error['500']}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </ThemedCard>
+            </View>
+          )}
+
+          {/* Business Info Card */}
+          <ThemedCard variant='elevated' style={styles.card}>
+            <View style={styles.ratingRow}>
+              <View style={styles.rating}>
+                <MaterialCommunityIcons
+                  name='star'
+                  size={20}
+                  color={theme.colors.warning['500']}
+                />
+                <ThemedText variant='h4' style={{ marginLeft: 4 }}>
+                  {business.rating?.toFixed(1) || 'N/A'}
+                </ThemedText>
+                <ThemedText
+                  variant='caption'
+                  colorVariant='gray'
+                  colorShade='600'
+                  style={{ marginLeft: 4 }}
+                >
+                  ({business.reviewCount} reviews)
+                </ThemedText>
+              </View>
+              <View style={styles.statusBadge}>
+                <View
+                  style={[
+                    styles.statusDot,
+                    {
+                      backgroundColor: isOpen
+                        ? theme.colors.success['500']
+                        : theme.colors.error['500'],
+                    },
+                  ]}
+                />
+                <ThemedText variant='caption' style={{ fontWeight: '600' }}>
+                  {isOpen ? 'Open Now' : 'Closed'}
+                </ThemedText>
+              </View>
+            </View>
+
+            <ThemedText
+              variant='body'
+              colorVariant='gray'
+              colorShade='700'
+              style={{ marginTop: 12 }}
+            >
+              {business.description}
+            </ThemedText>
+
+            <View style={styles.infoRow}>
               <MaterialCommunityIcons
                 name='map-marker'
-                size={48}
+                size={20}
                 color={theme.colors.primary['500']}
               />
-              <ThemedText
-                variant='body'
-                colorVariant='gray'
-                colorShade='600'
-                style={{ marginTop: 8, textAlign: 'center' }}
-              >
+              <ThemedText variant='body' style={{ marginLeft: 8, flex: 1 }}>
                 {business.address}
               </ThemedText>
-              <ThemedText
-                variant='caption'
-                colorVariant='gray'
-                colorShade='500'
-                style={{ marginTop: 4 }}
-              >
-                {business.distance} km away
-              </ThemedText>
             </View>
-            <ThemedButton
-              title='Open in Maps'
-              variant='outline'
-              onPress={() => console.log('Open maps for:', business.address)}
-              icon={
-                <MaterialCommunityIcons
-                  name='map'
-                  size={20}
-                  color={theme.colors.primary['500']}
-                />
-              }
-              style={{ marginTop: 12 }}
-            />
-          </ThemedCard>
-        </View>
 
-        {/* Services */}
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Services
-          </ThemedText>
-          {business.services.map((service: any) => (
-            <ThemedCard
-              key={service.id}
-              variant='elevated'
-              style={styles.serviceCard}
-            >
-              <View style={styles.serviceHeader}>
-                <View style={{ flex: 1 }}>
-                  <ThemedText variant='h4'>{service.name}</ThemedText>
-                  <ThemedText
-                    variant='caption'
-                    colorVariant='gray'
-                    colorShade='600'
-                    style={{ marginTop: 2 }}
-                  >
-                    {service.duration} minutes
+            {business?.distance !== null &&
+              business?.distance !== undefined && (
+                <View style={styles.infoRow}>
+                  <MaterialCommunityIcons
+                    name='map-marker-distance'
+                    size={20}
+                    color={theme.colors.primary['500']}
+                  />
+                  <ThemedText variant='body' style={{ marginLeft: 8 }}>
+                    {business.distance} km away
                   </ThemedText>
                 </View>
-                <ThemedText
-                  variant='h4'
-                  colorVariant='primary'
-                  style={{ fontWeight: '700' }}
-                >
-                  ${service.price}
-                </ThemedText>
-              </View>
-              <ThemedButton
-                title='Book Now'
-                variant='primary'
-                size='sm'
-                onPress={() =>
-                  router.push({
-                    pathname: '/book-service',
-                    params: {
-                      businessId: business.id,
-                      businessName: business.name,
-                      serviceId: service.id,
-                      serviceName: service.name,
-                      servicePrice: service.price,
-                    },
-                  })
-                }
-                style={{ marginTop: 12 }}
-              />
-            </ThemedCard>
-          ))}
-        </View>
+              )}
 
-        {/* Hours */}
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Hours of Operation
-          </ThemedText>
-          <ThemedCard variant='elevated' style={styles.card}>
-            {Object.entries(business.hours).map(([day, hours]) => (
-              <View key={day} style={styles.hourRow}>
-                <ThemedText
-                  variant='body'
-                  style={{ textTransform: 'capitalize', flex: 1 }}
-                >
-                  {day}
-                </ThemedText>
-                <ThemedText
-                  variant='body'
-                  colorVariant='gray'
-                  colorShade='700'
-                  style={{ fontWeight: '600' }}
-                >
-                  {String(hours)}
-                </ThemedText>
-              </View>
-            ))}
-          </ThemedCard>
-        </View>
-
-        <View style={styles.actionButtons}>
-          <ThemedButton
-            title='Call Business'
-            variant='outline'
-            onPress={() => console.log('Call:', business.phone)}
-            icon={
+            <View style={styles.infoRow}>
               <MaterialCommunityIcons
                 name='phone'
                 size={20}
                 color={theme.colors.primary['500']}
               />
-            }
-            style={{ flex: 1, marginRight: 8 }}
-          />
-          <ThemedButton
-            title='Get Directions'
-            variant='primary'
-            onPress={() => console.log('Directions to:', business.address)}
-            icon={
+              <ThemedText variant='body' style={{ marginLeft: 8 }}>
+                {business.phone}
+              </ThemedText>
+            </View>
+
+            <View style={styles.infoRow}>
               <MaterialCommunityIcons
-                name='directions'
+                name='email'
                 size={20}
-                color='#FFFFFF'
+                color={theme.colors.primary['500']}
               />
-            }
-            style={{ flex: 1, marginLeft: 8 }}
-          />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+              <ThemedText variant='body' style={{ marginLeft: 8 }}>
+                {business.email}
+              </ThemedText>
+            </View>
+          </ThemedCard>
+
+          {/* Map View */}
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Location
+            </ThemedText>
+            <ThemedCard variant='elevated' style={styles.mapCard}>
+              <View style={styles.mapPlaceholder}>
+                <MaterialCommunityIcons
+                  name='map-marker'
+                  size={48}
+                  color={theme.colors.primary['500']}
+                />
+                <ThemedText
+                  variant='body'
+                  colorVariant='gray'
+                  colorShade='600'
+                  style={{ marginTop: 8, textAlign: 'center' }}
+                >
+                  {business.address}
+                </ThemedText>
+                {business?.distance !== null &&
+                  business?.distance !== undefined && (
+                    <ThemedText
+                      variant='caption'
+                      colorVariant='gray'
+                      colorShade='500'
+                      style={{ marginTop: 4 }}
+                    >
+                      {business.distance} km away
+                    </ThemedText>
+                  )}
+              </View>
+              <ThemedButton
+                title='Open in Maps'
+                variant='outline'
+                onPress={handleGetDirections}
+                icon={
+                  <MaterialCommunityIcons
+                    name='map'
+                    size={20}
+                    color={theme.colors.primary['500']}
+                  />
+                }
+                style={{ marginTop: 12 }}
+              />
+            </ThemedCard>
+          </View>
+
+          {/* Services */}
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Services
+            </ThemedText>
+            {business.services && business.services.length > 0 ? (
+              business.services.map(service => (
+                <ThemedCard
+                  key={service.id}
+                  variant='elevated'
+                  style={styles.serviceCard}
+                >
+                  <View style={styles.serviceHeader}>
+                    <View style={{ flex: 1 }}>
+                      <ThemedText variant='h4'>{service.name}</ThemedText>
+                      {service.description && (
+                        <ThemedText
+                          variant='caption'
+                          colorVariant='gray'
+                          colorShade='600'
+                          style={{ marginTop: 2 }}
+                        >
+                          {service.description}
+                        </ThemedText>
+                      )}
+                      <ThemedText
+                        variant='caption'
+                        colorVariant='gray'
+                        colorShade='600'
+                        style={{ marginTop: 4 }}
+                      >
+                        {service.duration} minutes
+                      </ThemedText>
+                    </View>
+                    <ThemedText
+                      variant='h4'
+                      colorVariant='primary'
+                      style={{ fontWeight: '700' }}
+                    >
+                      {formatCurrency(service.price)}
+                    </ThemedText>
+                  </View>
+                  <ThemedButton
+                    title='Book Now'
+                    variant='primary'
+                    size='sm'
+                    onPress={() =>
+                      router.push({
+                        pathname: '/book-service',
+                        params: {
+                          businessId: business.id,
+                          businessName: business.name,
+                          serviceId: service.id,
+                          serviceName: service.name,
+                          servicePrice: service.price,
+                        },
+                      })
+                    }
+                    style={{ marginTop: 12 }}
+                  />
+                </ThemedCard>
+              ))
+            ) : (
+              <View style={styles.emptyContainer}>
+                <ThemedText
+                  variant='body'
+                  colorVariant='gray'
+                  colorShade='600'
+                  style={{ textAlign: 'center' }}
+                >
+                  No services available
+                </ThemedText>
+              </View>
+            )}
+          </View>
+
+          {/* Hours */}
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Hours of Operation
+            </ThemedText>
+            <ThemedCard variant='elevated' style={styles.card}>
+              {Object.entries(business.operatingHours).map(([day, hours]) => (
+                <View key={day} style={styles.hourRow}>
+                  <ThemedText
+                    variant='body'
+                    style={{ textTransform: 'capitalize', flex: 1 }}
+                  >
+                    {day}
+                  </ThemedText>
+                  <ThemedText
+                    variant='body'
+                    colorVariant='gray'
+                    colorShade='700'
+                    style={{ fontWeight: '600' }}
+                  >
+                    {hours.isOpen ? `${hours.open} - ${hours.close}` : 'Closed'}
+                  </ThemedText>
+                </View>
+              ))}
+            </ThemedCard>
+          </View>
+
+          <View style={styles.actionButtons}>
+            <ThemedButton
+              title='Call Business'
+              variant='outline'
+              onPress={handleCall}
+              icon={
+                <MaterialCommunityIcons
+                  name='phone'
+                  size={20}
+                  color={theme.colors.primary['500']}
+                />
+              }
+              style={{ flex: 1, marginRight: 8 }}
+            />
+            <ThemedButton
+              title='Get Directions'
+              variant='primary'
+              onPress={handleGetDirections}
+              icon={
+                <MaterialCommunityIcons
+                  name='directions'
+                  size={20}
+                  color='#FFFFFF'
+                />
+              }
+              style={{ flex: 1, marginLeft: 8 }}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 
@@ -406,5 +563,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorContainer: {
+    marginHorizontal: 16,
+    marginTop: 16,
+  },
+  errorCard: {
+    padding: 12,
+  },
+  errorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

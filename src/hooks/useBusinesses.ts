@@ -41,8 +41,10 @@ export const useBusinesses = (): UseBusinessesReturn => {
   const [hasMore, setHasMore] = useState(true);
 
   // Refs for pagination and caching
-  const lastDocRef = useRef<DocumentSnapshot | undefined>();
-  const currentFiltersRef = useRef<BusinessSearchFilters | undefined>();
+  const lastDocRef = useRef<DocumentSnapshot | undefined>(undefined);
+  const currentFiltersRef = useRef<BusinessSearchFilters | undefined>(
+    undefined
+  );
   const currentSearchTermRef = useRef<string>('');
   const cacheRef = useRef<Map<string, BusinessWithLocation>>(new Map());
 
@@ -81,7 +83,7 @@ export const useBusinesses = (): UseBusinessesReturn => {
         lastDocRef.current = result.lastDoc;
 
         // Update cache
-        result.businesses.forEach((business) => {
+        result.businesses.forEach(business => {
           cacheRef.current.set(business.id, business);
         });
       } catch (err) {
@@ -125,7 +127,7 @@ export const useBusinesses = (): UseBusinessesReturn => {
         lastDocRef.current = result.lastDoc;
 
         // Update cache
-        result.businesses.forEach((business) => {
+        result.businesses.forEach(business => {
           cacheRef.current.set(business.id, business);
         });
       } catch (err) {
@@ -150,7 +152,7 @@ export const useBusinesses = (): UseBusinessesReturn => {
       setLoading(true);
       setError(null);
 
-      let result;
+      let result: { businesses: BusinessWithLocation[]; lastDoc?: any };
 
       if (currentSearchTermRef.current) {
         // Continue search pagination (not implemented in service yet)
@@ -164,12 +166,12 @@ export const useBusinesses = (): UseBusinessesReturn => {
       }
 
       if (result.businesses.length > 0) {
-        setBusinesses((prev) => [...prev, ...result.businesses]);
+        setBusinesses(prev => [...prev, ...result.businesses]);
         lastDocRef.current = result.lastDoc;
         setHasMore(result.businesses.length === 20);
 
         // Update cache
-        result.businesses.forEach((business) => {
+        result.businesses.forEach(business => {
           cacheRef.current.set(business.id, business);
         });
       } else {
@@ -186,15 +188,15 @@ export const useBusinesses = (): UseBusinessesReturn => {
 
   // Refresh businesses
   const refreshBusinesses = useCallback(async () => {
+    const originalLastDoc = lastDocRef.current;
     try {
       setRefreshing(true);
       setError(null);
 
       // Reset pagination
-      const originalLastDoc = lastDocRef.current;
       lastDocRef.current = undefined;
 
-      let result;
+      let result: { businesses: BusinessWithLocation[]; lastDoc?: any };
 
       if (currentSearchTermRef.current) {
         result = await BusinessService.searchBusinesses(
@@ -214,7 +216,7 @@ export const useBusinesses = (): UseBusinessesReturn => {
       lastDocRef.current = result.lastDoc;
 
       // Update cache
-      result.businesses.forEach((business) => {
+      result.businesses.forEach(business => {
         cacheRef.current.set(business.id, business);
       });
 
@@ -251,8 +253,8 @@ export const useBusinesses = (): UseBusinessesReturn => {
           cacheRef.current.set(business.id, business);
 
           // Update businesses list if business is already there
-          setBusinesses((prev) => {
-            const index = prev.findIndex((b) => b.id === businessId);
+          setBusinesses(prev => {
+            const index = prev.findIndex(b => b.id === businessId);
             if (index >= 0) {
               const updated = [...prev];
               updated[index] = business;

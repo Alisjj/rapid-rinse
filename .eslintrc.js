@@ -3,7 +3,7 @@ module.exports = {
   extends: [
     'expo',
     '@react-native',
-    '@typescript-eslint/recommended',
+    '@typescript-eslint/recommended-type-checked',
     'eslint-config-prettier',
   ],
   plugins: ['prettier', '@typescript-eslint', 'react', 'react-native'],
@@ -25,7 +25,7 @@ module.exports = {
   rules: {
     // Prettier integration
     'prettier/prettier': 'error',
-    
+
     // TypeScript specific rules
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -33,7 +33,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/prefer-const': 'error',
     '@typescript-eslint/no-var-requires': 'error',
-    
+
     // React specific rules
     'react/prop-types': 'off', // We use TypeScript for prop validation
     'react/react-in-jsx-scope': 'off', // Not needed in React 17+
@@ -55,14 +55,14 @@ module.exports = {
     'react/no-unknown-property': 'error',
     'react/require-render-return': 'error',
     'react/self-closing-comp': 'error',
-    
+
     // React Native specific rules
     'react-native/no-unused-styles': 'error',
     'react-native/split-platform-components': 'error',
     'react-native/no-inline-styles': 'warn',
     'react-native/no-color-literals': 'warn',
     'react-native/no-raw-text': 'off', // Can be restrictive for simple text
-    
+
     // General code quality rules
     'no-console': 'warn',
     'no-debugger': 'error',
@@ -75,12 +75,12 @@ module.exports = {
     'prefer-template': 'error',
     'template-curly-spacing': 'error',
     'arrow-spacing': 'error',
-    'comma-dangle': ['error', 'es5'],
+    'comma-dangle': ['error', 'always-multiline'],
     'eol-last': 'error',
-    'indent': 'off', // Handled by Prettier
+    indent: 'off', // Handled by Prettier
     'linebreak-style': ['error', 'unix'],
-    'quotes': ['error', 'single', { avoidEscape: true }],
-    'semi': ['error', 'always'],
+    quotes: ['error', 'single', { avoidEscape: true }],
+    semi: ['error', 'always'],
     'no-trailing-spaces': 'error',
     'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
     'space-before-blocks': 'error',

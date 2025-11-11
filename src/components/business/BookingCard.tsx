@@ -100,9 +100,9 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   };
 
   const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
     }).format(price);
   };
 
@@ -156,7 +156,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
 
     return (
       <View style={{ marginVertical: theme.spacing.md }}>
-        <ThemedText variant="h4" style={{ marginBottom: theme.spacing.sm }}>
+        <ThemedText variant='h4' style={{ marginBottom: theme.spacing.sm }}>
           Booking Progress
         </ThemedText>
 
@@ -189,13 +189,13 @@ export const BookingCard: React.FC<BookingCardProps> = ({
                   <MaterialCommunityIcons
                     name={step.isError ? 'close' : 'check'}
                     size={12}
-                    color="#FFFFFF"
+                    color='#FFFFFF'
                   />
                 )}
               </View>
 
               <ThemedText
-                variant="body"
+                variant='body'
                 colorVariant={
                   step.completed ? (step.isError ? 'error' : 'success') : 'gray'
                 }
@@ -231,7 +231,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
 
     return (
       <View style={{ marginTop: theme.spacing.md }}>
-        <ThemedText variant="h4" style={{ marginBottom: theme.spacing.sm }}>
+        <ThemedText variant='h4' style={{ marginBottom: theme.spacing.sm }}>
           Service Details
         </ThemedText>
 
@@ -249,18 +249,18 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             }}
           >
             <View style={{ flex: 1 }}>
-              <ThemedText variant="body" style={{ fontWeight: '600' }}>
+              <ThemedText variant='body' style={{ fontWeight: '600' }}>
                 {service.name}
               </ThemedText>
               <ThemedText
-                variant="caption"
-                colorVariant="gray"
-                colorShade="600"
+                variant='caption'
+                colorVariant='gray'
+                colorShade='600'
               >
                 {service.duration} minutes
               </ThemedText>
             </View>
-            <ThemedText variant="body" style={{ fontWeight: '600' }}>
+            <ThemedText variant='body' style={{ fontWeight: '600' }}>
               {formatPrice(service.price)}
             </ThemedText>
           </View>
@@ -277,10 +277,10 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             marginTop: theme.spacing.sm,
           }}
         >
-          <ThemedText variant="h4">Total</ThemedText>
+          <ThemedText variant='h4'>Total</ThemedText>
           <ThemedText
-            variant="h4"
-            colorVariant="primary"
+            variant='h4'
+            colorVariant='primary'
             style={{ fontWeight: '700' }}
           >
             {formatPrice(booking.totalAmount)}
@@ -294,7 +294,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
     const isCompact = variant === 'compact';
 
     return (
-      <CardContent padding="md">
+      <CardContent padding='md'>
         {/* Header with status */}
         <View
           style={{
@@ -321,7 +321,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             }}
           >
             <ThemedText
-              variant="caption"
+              variant='caption'
               style={{
                 color: '#FFFFFF',
                 fontWeight: '600',
@@ -342,14 +342,14 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           }}
         >
           <MaterialCommunityIcons
-            name="store"
+            name='store'
             size={16}
             color={theme.colors.gray['500']}
           />
           <ThemedText
-            variant="body"
-            colorVariant="gray"
-            colorShade="600"
+            variant='body'
+            colorVariant='gray'
+            colorShade='600'
             style={{ marginLeft: theme.spacing.xs }}
           >
             {booking.businessName || 'Business Name'}
@@ -365,12 +365,12 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           }}
         >
           <MaterialCommunityIcons
-            name="calendar"
+            name='calendar'
             size={16}
             color={theme.colors.primary['500']}
           />
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ marginLeft: theme.spacing.xs, fontWeight: '600' }}
           >
             {formatDate(booking.scheduledDate)}
@@ -385,12 +385,12 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           }}
         >
           <MaterialCommunityIcons
-            name="clock"
+            name='clock'
             size={16}
             color={theme.colors.primary['500']}
           />
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ marginLeft: theme.spacing.xs, fontWeight: '600' }}
           >
             {formatTime(booking.scheduledDate)}
@@ -409,18 +409,18 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <MaterialCommunityIcons
-                name="credit-card"
+                name='credit-card'
                 size={16}
                 color={getPaymentStatusColor(booking.paymentStatus)}
               />
               <ThemedText
-                variant="body"
+                variant='body'
                 style={{ marginLeft: theme.spacing.xs }}
               >
                 Payment:
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={{
                   marginLeft: theme.spacing.xs,
                   fontWeight: '600',
@@ -433,8 +433,8 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             </View>
 
             <ThemedText
-              variant="h4"
-              colorVariant="primary"
+              variant='h4'
+              colorVariant='primary'
               style={{ fontWeight: '700' }}
             >
               {formatPrice(booking.totalAmount)}
@@ -456,14 +456,14 @@ export const BookingCard: React.FC<BookingCardProps> = ({
               paddingVertical: theme.spacing.sm,
               marginBottom: theme.spacing.sm,
             }}
-            accessibilityRole="button"
+            accessibilityRole='button'
             accessibilityLabel={
               expanded ? 'Hide service details' : 'Show service details'
             }
           >
             <ThemedText
-              variant="body"
-              colorVariant="primary"
+              variant='body'
+              colorVariant='primary'
               style={{ fontWeight: '600' }}
             >
               {expanded ? 'Hide Details' : 'Show Details'}
@@ -490,14 +490,14 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             }}
           >
             <ThemedText
-              variant="caption"
-              colorVariant="gray"
-              colorShade="600"
+              variant='caption'
+              colorVariant='gray'
+              colorShade='600'
               style={{ fontWeight: '600', marginBottom: theme.spacing.xs }}
             >
               Notes:
             </ThemedText>
-            <ThemedText variant="body" colorVariant="gray" colorShade="700">
+            <ThemedText variant='body' colorVariant='gray' colorShade='700'>
               {booking.notes}
             </ThemedText>
           </View>
@@ -517,37 +517,37 @@ export const BookingCard: React.FC<BookingCardProps> = ({
                 booking.status !== 'completed' &&
                 booking.status !== 'cancelled' && (
                   <ThemedButton
-                    title="Reschedule"
-                    variant="outline"
+                    title='Reschedule'
+                    variant='outline'
                     size={isCompact ? 'sm' : 'md'}
                     onPress={onReschedulePress}
                     style={{ flex: 1, marginRight: theme.spacing.sm }}
                     icon={
                       <MaterialCommunityIcons
-                        name="calendar-edit"
+                        name='calendar-edit'
                         size={16}
                         color={theme.colors.primary['500']}
                       />
                     }
-                    accessibilityLabel="Reschedule booking"
+                    accessibilityLabel='Reschedule booking'
                   />
                 )}
 
               {booking.paymentStatus === 'pending' && onPaymentPress && (
                 <ThemedButton
-                  title="Pay Now"
-                  variant="primary"
+                  title='Pay Now'
+                  variant='primary'
                   size={isCompact ? 'sm' : 'md'}
                   onPress={onPaymentPress}
                   style={{ flex: 1, marginRight: theme.spacing.sm }}
                   icon={
                     <MaterialCommunityIcons
-                      name="credit-card"
+                      name='credit-card'
                       size={16}
-                      color="#FFFFFF"
+                      color='#FFFFFF'
                     />
                   }
-                  accessibilityLabel="Complete payment"
+                  accessibilityLabel='Complete payment'
                 />
               )}
             </View>
@@ -565,17 +565,17 @@ export const BookingCard: React.FC<BookingCardProps> = ({
                   paddingVertical: theme.spacing.sm,
                   marginRight: theme.spacing.sm,
                 }}
-                accessibilityRole="button"
-                accessibilityLabel="Contact business"
+                accessibilityRole='button'
+                accessibilityLabel='Contact business'
               >
                 <MaterialCommunityIcons
-                  name="phone"
+                  name='phone'
                   size={20}
                   color={theme.colors.success['500']}
                 />
                 <ThemedText
-                  variant="body"
-                  colorVariant="success"
+                  variant='body'
+                  colorVariant='success'
                   style={{ marginLeft: theme.spacing.xs, fontWeight: '600' }}
                 >
                   Contact
@@ -594,17 +594,17 @@ export const BookingCard: React.FC<BookingCardProps> = ({
                       justifyContent: 'center',
                       paddingVertical: theme.spacing.sm,
                     }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Cancel booking"
+                    accessibilityRole='button'
+                    accessibilityLabel='Cancel booking'
                   >
                     <MaterialCommunityIcons
-                      name="cancel"
+                      name='cancel'
                       size={20}
                       color={theme.colors.error['500']}
                     />
                     <ThemedText
-                      variant="body"
-                      colorVariant="error"
+                      variant='body'
+                      colorVariant='error'
                       style={{
                         marginLeft: theme.spacing.xs,
                         fontWeight: '600',
@@ -624,8 +624,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   const cardStyle: ViewStyle = {
     marginBottom: theme.spacing.md,
     ...(Platform.OS === 'web' && {
-      // @ts-ignore - web-only property
-      cursor: onPress ? 'pointer' : 'default',
+      cursor: (onPress ? 'pointer' : 'default') as any,
     }),
   };
 
@@ -634,16 +633,11 @@ export const BookingCard: React.FC<BookingCardProps> = ({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.8}
-        accessibilityRole="button"
+        accessibilityRole='button'
         accessibilityLabel={`View booking details for ${booking.serviceName}`}
-        accessibilityHint="Double tap to view booking details"
+        accessibilityHint='Double tap to view booking details'
       >
-        <ThemedCard
-          variant="elevated"
-          padding="none"
-          style={cardStyle}
-          hoverable={true}
-        >
+        <ThemedCard variant='elevated' style={cardStyle} hoverable={true}>
           {renderContent()}
         </ThemedCard>
       </TouchableOpacity>
@@ -651,7 +645,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   }
 
   return (
-    <ThemedCard variant="elevated" padding="none" style={cardStyle}>
+    <ThemedCard variant='elevated' style={cardStyle}>
       {renderContent()}
     </ThemedCard>
   );

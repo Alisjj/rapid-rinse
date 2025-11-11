@@ -39,9 +39,9 @@ export const formatDateTime = (date: Date): string => {
 
 // Currency utilities
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-NG', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'NGN',
   }).format(amount);
 };
 
@@ -72,7 +72,7 @@ export const groupBy = <T, K extends keyof any>(
 
 // Async utilities
 export const delay = (ms: number): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 // Error handling utilities

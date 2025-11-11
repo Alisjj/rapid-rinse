@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Image,
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -19,8 +19,8 @@ import { Header } from '@/components/navigation';
 import { ProfileStackParamList, User } from '@/types';
 import { useTheme } from '@/theme';
 
-// Import services (placeholder for now)
-// import { fetchUserProfile, signOut } from '@/services/firebase';
+// Import Firebase hooks
+import { useUser, useBookings } from '@/hooks';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<
   ProfileStackParamList,
@@ -43,50 +43,24 @@ interface ProfileStats {
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const { theme } = useTheme();
 
-  // State management
-  const [user, setUser] = useState<User | null>(null);
-  const [stats, setStats] = useState<ProfileStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Firebase hooks
+  const { userProfile, loading: userLoading, error: userError } = useUser();
+  const { bookings, loading: bookingsLoading } = useBookings();
 
-  // Mock data for now - will be replaced with actual API calls
-  const mockUser: User = {
-    id: '1',
-    email: 'john.doe@example.com',
-    name: 'John Doe',
-    phone: '+1 (555) 123-4567',
-    role: 'customer',
-    createdAt: new Date('2023-01-15'),
-    updatedAt: new Date(),
-  };
-
-  const mockStats: ProfileStats = {
-    totalBookings: 12,
-    completedBookings: 10,
-    totalSpent: 324.89,
-    favoriteServices: ['Premium Wash', 'Interior Clean'],
-  };
-
-  // Load user profile data
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      setLoading(true);
-
-      try {
-        // Simulate API call with mock data
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        setUser(mockUser);
-        setStats(mockStats);
-      } catch (error) {
-        console.error('Error loading profile:', error);
-        Alert.alert('Error', 'Failed to load profile. Please try again.');
-      } finally {
-        setLoading(false);
+  // Calculate stats from bookings data
+  const stats: ProfileStats | null = bookings
+    ? {
+        totalBookings: bookings.length,
+        completedBookings: bookings.filter(b => b.status === 'completed')
+          .length,
+        totalSpent: bookings
+          .filter(b => b.status === 'completed')
+          .reduce((total, booking) => total + (booking.totalAmount || 0), 0),
+        favoriteServices: ['Premium Wash', 'Interior Clean'], // This could be calculated from booking history
       }
-    };
+    : null;
 
-    loadUserProfile();
-  }, []);
+  const loading = userLoading || bookingsLoading;
 
   // Handle sign out
   const handleSignOut = () => {
@@ -98,7 +72,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         onPress: async () => {
           try {
             // Mock sign out - replace with actual Firebase auth
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Navigation will be handled by the auth state change
             console.log('User signed out');
@@ -154,10 +128,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Header title="Profile" showBackButton={false} />
+        <Header title='Profile' showBackButton={false} />
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Loading profile...
@@ -167,15 +141,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     );
   }
 
-  if (!user) {
+  if (!userProfile) {
     return (
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Header title="Profile" showBackButton={false} />
+        <Header title='Profile' showBackButton={false} />
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Profile not found
@@ -189,7 +163,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Header title="Profile" showBackButton={false} />
+      <Header title='Profile' showBackButton={false} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
@@ -202,46 +176,46 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               ]}
             >
               <ThemedText
-                variant="h2"
+                variant='h2'
                 style={{ color: theme.colors.primary['600'] }}
               >
-                {user.name
+                {userProfile?.fullName
                   .split(' ')
-                  .map((n) => n[0])
+                  .map(n => n[0])
                   .join('')
                   .toUpperCase()}
               </ThemedText>
             </View>
             <View style={styles.userInfo}>
-              <ThemedText variant="h3" style={styles.userName}>
-                {user.name}
+              <ThemedText variant='h3' style={styles.userName}>
+                {userProfile?.fullName}
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={[styles.userEmail, { color: theme.colors.gray['600'] }]}
               >
-                {user.email}
+                {userProfile?.email}
               </ThemedText>
-              {user.phone && (
+              {userProfile?.phoneNumber && (
                 <ThemedText
-                  variant="body"
+                  variant='body'
                   style={[
                     styles.userPhone,
                     { color: theme.colors.gray['600'] },
                   ]}
                 >
-                  {user.phone}
+                  {userProfile?.phoneNumber}
                 </ThemedText>
               )}
               <ThemedText
-                variant="caption"
+                variant='caption'
                 style={[
                   styles.memberSince,
                   { color: theme.colors.gray['500'] },
                 ]}
               >
                 Member since{' '}
-                {user.createdAt.toLocaleDateString('en-US', {
+                {userProfile?.createdAt.toLocaleDateString('en-US', {
                   month: 'long',
                   year: 'numeric',
                 })}
@@ -253,13 +227,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         {/* Stats Section */}
         {stats && (
           <ThemedCard style={styles.statsCard}>
-            <ThemedText variant="h4" style={styles.statsTitle}>
+            <ThemedText variant='h4' style={styles.statsTitle}>
               Your Activity
             </ThemedText>
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
                 <ThemedText
-                  variant="h3"
+                  variant='h3'
                   style={[
                     styles.statValue,
                     { color: theme.colors.primary['600'] },
@@ -268,7 +242,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                   {stats.totalBookings}
                 </ThemedText>
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={[
                     styles.statLabel,
                     { color: theme.colors.gray['500'] },
@@ -279,7 +253,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               </View>
               <View style={styles.statItem}>
                 <ThemedText
-                  variant="h3"
+                  variant='h3'
                   style={[
                     styles.statValue,
                     { color: theme.colors.success['600'] },
@@ -288,7 +262,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                   {stats.completedBookings}
                 </ThemedText>
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={[
                     styles.statLabel,
                     { color: theme.colors.gray['500'] },
@@ -299,7 +273,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               </View>
               <View style={styles.statItem}>
                 <ThemedText
-                  variant="h3"
+                  variant='h3'
                   style={[
                     styles.statValue,
                     { color: theme.colors.warning['600'] },
@@ -308,7 +282,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                   ${stats.totalSpent.toFixed(0)}
                 </ThemedText>
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={[
                     styles.statLabel,
                     { color: theme.colors.gray['500'] },
@@ -323,7 +297,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
         {/* Menu Items */}
         <View style={styles.menuSection}>
-          {menuItems.map((item) => (
+          {menuItems.map(item => (
             <TouchableOpacity key={item.id} onPress={item.onPress}>
               <ThemedCard style={styles.menuItem}>
                 <View style={styles.menuItemContent}>
@@ -334,17 +308,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                         { backgroundColor: theme.colors.gray['100'] },
                       ]}
                     >
-                      <ThemedText variant="bodyLarge">{item.icon}</ThemedText>
+                      <ThemedText variant='bodyLarge'>{item.icon}</ThemedText>
                     </View>
                     <View style={styles.menuItemText}>
                       <ThemedText
-                        variant="bodyLarge"
+                        variant='bodyLarge'
                         style={styles.menuItemTitle}
                       >
                         {item.title}
                       </ThemedText>
                       <ThemedText
-                        variant="caption"
+                        variant='caption'
                         style={[
                           styles.menuItemSubtitle,
                           { color: theme.colors.gray['500'] },
@@ -355,7 +329,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                     </View>
                   </View>
                   <ThemedText
-                    variant="bodyLarge"
+                    variant='bodyLarge'
                     style={{ color: theme.colors.gray['400'] }}
                   >
                     ›
@@ -369,9 +343,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         {/* Sign Out Button */}
         <View style={styles.signOutSection}>
           <ThemedButton
-            variant="outline"
-            size="lg"
-            title="Sign Out"
+            variant='outline'
+            size='lg'
+            title='Sign Out'
             onPress={handleSignOut}
             style={[
               styles.signOutButton,
@@ -383,7 +357,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         {/* App Info */}
         <View style={styles.appInfo}>
           <ThemedText
-            variant="caption"
+            variant='caption'
             style={[styles.appVersion, { color: theme.colors.gray['400'] }]}
           >
             RapidRinse v1.0.0

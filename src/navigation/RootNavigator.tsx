@@ -33,7 +33,7 @@ const linking = {
             screens: {
               HomeScreen: 'home',
               BusinessDetails: 'business/:businessId',
-              ServiceBooking: 'booking/:businessId/:serviceId',
+              BookService: 'booking/:businessId/:serviceId?',
               SearchResults: 'search/:query',
             },
           },
@@ -68,7 +68,7 @@ const linking = {
       },
       BookingDetails: 'booking/:bookingId',
       BusinessDetails: 'business/:businessId',
-      ServiceBooking: 'booking/:businessId/:serviceId',
+      BookService: 'booking/:businessId/:serviceId?',
     },
   },
 };
@@ -142,7 +142,7 @@ export function RootNavigator({ isAuthenticated }: RootNavigatorProps) {
             }}
           />
           <Stack.Screen
-            name='ServiceBooking'
+            name='BookService'
             component={BookServiceScreen}
             options={{
               headerShown: false,

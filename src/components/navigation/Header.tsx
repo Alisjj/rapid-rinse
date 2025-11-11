@@ -6,8 +6,8 @@ import {
   ViewStyle,
   Platform,
   StatusBar,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ui/ThemedText';
 import { useTheme } from '@/theme';
@@ -101,12 +101,12 @@ export const Header: React.FC<HeaderProps> = ({
             padding: theme.spacing.sm,
             marginLeft: -theme.spacing.sm,
           }}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          accessibilityHint="Navigate to previous screen"
+          accessibilityRole='button'
+          accessibilityLabel='Go back'
+          accessibilityHint='Navigate to previous screen'
         >
           <MaterialCommunityIcons
-            name="arrow-left"
+            name='arrow-left'
             size={24}
             color={theme.colors.text}
           />
@@ -122,7 +122,7 @@ export const Header: React.FC<HeaderProps> = ({
             padding: theme.spacing.sm,
             marginLeft: -theme.spacing.sm,
           }}
-          accessibilityRole="button"
+          accessibilityRole='button'
           accessibilityLabel={leftIcon === 'menu' ? 'Open menu' : 'Action'}
         >
           <MaterialCommunityIcons
@@ -147,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
             width: 120,
             resizeMode: 'contain',
           }}
-          accessibilityLabel="App logo"
+          accessibilityLabel='App logo'
         />
       );
     }
@@ -155,7 +155,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (title) {
       return (
         <ThemedText
-          variant="h3"
+          variant='h3'
           numberOfLines={1}
           style={{
             textAlign: 'center',
@@ -185,7 +185,7 @@ export const Header: React.FC<HeaderProps> = ({
             marginRight: -theme.spacing.sm,
             position: 'relative',
           }}
-          accessibilityRole="button"
+          accessibilityRole='button'
           accessibilityLabel={
             rightIcon === 'bell' ? 'View notifications' : 'Action'
           }
@@ -218,7 +218,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
             >
               <ThemedText
-                variant="caption"
+                variant='caption'
                 style={{
                   color: '#FFFFFF',
                   fontSize: 10,
@@ -244,8 +244,8 @@ export const Header: React.FC<HeaderProps> = ({
     return (
       <View style={headerStyles}>
         <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
+          barStyle='light-content'
+          backgroundColor='transparent'
           translucent
         />
         <SafeAreaView style={{ width: '100%' }}>

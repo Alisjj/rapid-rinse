@@ -69,7 +69,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
       stars.push(
         <MaterialCommunityIcons
           key={`star-${i}`}
-          name="star"
+          name='star'
           size={16}
           color={theme.colors.warning['500']}
         />
@@ -79,8 +79,8 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
     if (hasHalfStar) {
       stars.push(
         <MaterialCommunityIcons
-          key="star-half"
-          name="star-half-full"
+          key='star-half'
+          name='star-half-full'
           size={16}
           color={theme.colors.warning['500']}
         />
@@ -92,7 +92,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
       stars.push(
         <MaterialCommunityIcons
           key={`star-empty-${i}`}
-          name="star-outline"
+          name='star-outline'
           size={16}
           color={theme.colors.gray['300']}
         />
@@ -195,7 +195,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
         <View style={imageContainerStyle}>
           <View style={placeholderStyle}>
             <MaterialCommunityIcons
-              name="store"
+              name='store'
               size={variant === 'compact' ? 24 : 48}
               color={theme.colors.gray['400']}
             />
@@ -211,7 +211,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           style={imageStyle}
           onLoad={handleImageLoad}
           onError={handleImageError}
-          resizeMode="cover"
+          resizeMode='cover'
         />
         {imageLoading && (
           <View
@@ -248,16 +248,16 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
               flexDirection: 'row',
               alignItems: 'center',
             }}
-            accessibilityRole="button"
+            accessibilityRole='button'
             accessibilityLabel={`View ${business.images.length} photos`}
           >
             <MaterialCommunityIcons
-              name="image-multiple"
+              name='image-multiple'
               size={16}
-              color="#FFFFFF"
+              color='#FFFFFF'
             />
             <ThemedText
-              variant="caption"
+              variant='caption'
               style={{
                 color: '#FFFFFF',
                 marginLeft: theme.spacing.xs,
@@ -287,13 +287,13 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           {renderStars(business.rating)}
         </View>
         <ThemedText
-          variant="body"
+          variant='body'
           style={{ fontWeight: '600', marginRight: theme.spacing.xs }}
         >
           {business.rating.toFixed(1)}
         </ThemedText>
         {business.reviewCount && (
-          <ThemedText variant="caption" colorVariant="gray" colorShade="600">
+          <ThemedText variant='caption' colorVariant='gray' colorShade='600'>
             ({business.reviewCount} reviews)
           </ThemedText>
         )}
@@ -324,18 +324,18 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           }}
         />
         <ThemedText
-          variant="caption"
+          variant='caption'
           colorVariant={status.isOpen ? 'success' : 'error'}
-          colorShade="600"
+          colorShade='600'
           style={{ fontWeight: '600' }}
         >
           {status.isOpen ? 'Open Now' : 'Closed'}
         </ThemedText>
         {status.nextChange && (
           <ThemedText
-            variant="caption"
-            colorVariant="gray"
-            colorShade="600"
+            variant='caption'
+            colorVariant='gray'
+            colorShade='600'
             style={{ marginLeft: theme.spacing.sm }}
           >
             • {status.nextChange}
@@ -349,7 +349,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
     const isCompact = variant === 'compact';
 
     return (
-      <CardContent padding="md">
+      <CardContent padding='md'>
         <View style={{ flexDirection: isCompact ? 'row' : 'column' }}>
           {renderImage()}
 
@@ -373,14 +373,14 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
               }}
             >
               <MaterialCommunityIcons
-                name="map-marker"
+                name='map-marker'
                 size={16}
                 color={theme.colors.gray['500']}
               />
               <ThemedText
-                variant="caption"
-                colorVariant="gray"
-                colorShade="600"
+                variant='caption'
+                colorVariant='gray'
+                colorShade='600'
                 numberOfLines={1}
                 style={{
                   flex: 1,
@@ -392,9 +392,9 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
               </ThemedText>
               {business.distance && (
                 <ThemedText
-                  variant="caption"
-                  colorVariant="primary"
-                  colorShade="600"
+                  variant='caption'
+                  colorVariant='primary'
+                  colorShade='600'
                   style={{ fontWeight: '600' }}
                 >
                   {formatDistance(business.distance)}
@@ -404,9 +404,9 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
 
             {variant === 'detailed' && business.description && (
               <ThemedText
-                variant="body"
-                colorVariant="gray"
-                colorShade="600"
+                variant='body'
+                colorVariant='gray'
+                colorShade='600'
                 numberOfLines={3}
                 style={{ marginBottom: theme.spacing.sm }}
               >
@@ -424,8 +424,8 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
                 }}
               >
                 <ThemedButton
-                  title="View Details"
-                  variant="primary"
+                  title='View Details'
+                  variant='primary'
                   size={isCompact ? 'sm' : 'md'}
                   onPress={onPress}
                   style={{ flex: 1, marginRight: theme.spacing.sm }}
@@ -440,11 +440,11 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
                         padding: theme.spacing.sm,
                         marginRight: theme.spacing.xs,
                       }}
-                      accessibilityRole="button"
+                      accessibilityRole='button'
                       accessibilityLabel={`Call ${business.name}`}
                     >
                       <MaterialCommunityIcons
-                        name="phone"
+                        name='phone'
                         size={24}
                         color={theme.colors.success['500']}
                       />
@@ -456,11 +456,11 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
                     style={{
                       padding: theme.spacing.sm,
                     }}
-                    accessibilityRole="button"
+                    accessibilityRole='button'
                     accessibilityLabel={`Get directions to ${business.name}`}
                   >
                     <MaterialCommunityIcons
-                      name="directions"
+                      name='directions'
                       size={24}
                       color={theme.colors.primary['500']}
                     />
@@ -477,8 +477,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
   const cardStyle: ViewStyle = {
     marginBottom: theme.spacing.md,
     ...(Platform.OS === 'web' && {
-      // @ts-ignore - web-only property
-      cursor: onPress ? 'pointer' : 'default',
+      cursor: (onPress ? 'pointer' : 'default') as any,
     }),
   };
 
@@ -487,16 +486,11 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.8}
-        accessibilityRole="button"
+        accessibilityRole='button'
         accessibilityLabel={`View details for ${business.name}`}
-        accessibilityHint="Double tap to view business details"
+        accessibilityHint='Double tap to view business details'
       >
-        <ThemedCard
-          variant="elevated"
-          padding="none"
-          style={cardStyle}
-          hoverable={true}
-        >
+        <ThemedCard variant='elevated' style={cardStyle} hoverable={true}>
           {renderContent()}
         </ThemedCard>
       </TouchableOpacity>
@@ -504,7 +498,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
   }
 
   return (
-    <ThemedCard variant="elevated" padding="none" style={cardStyle}>
+    <ThemedCard variant='elevated' style={cardStyle}>
       {renderContent()}
     </ThemedCard>
   );

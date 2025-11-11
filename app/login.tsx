@@ -3,11 +3,11 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import {
@@ -17,17 +17,18 @@ import {
   ThemedTextInput,
 } from '@/components/ui';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAuth } from '@/hooks';
 
 export default function Login() {
   const { theme } = useTheme();
   const router = useRouter();
+  const { login, loading: authLoading, error } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert(
         'Missing Information',
@@ -36,17 +37,14 @@ export default function Login() {
       return;
     }
 
-    setLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      setLoading(false);
-      Alert.alert('Success', 'Login successful!', [
-        {
-          text: 'OK',
-          onPress: () => router.push('/'),
-        },
-      ]);
-    }, 1000);
+    try {
+      await login(email, password);
+      // Login successful - user will be automatically redirected by ProtectedRoute
+      router.replace('/');
+    } catch (err) {
+      // Error is already handled by the auth context
+      console.error('Login failed:', err);
+    }
   };
 
   return (
@@ -130,23 +128,21 @@ export default function Login() {
               >
                 Password
               </ThemedText>
-              <View style={styles.passwordContainer}>
-                <ThemedTextInput
-                  placeholder='Enter your password'
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize='none'
-                  style={{ paddingRight: 48 }}
-                />
-                <MaterialCommunityIcons
-                  name={showPassword ? 'eye-off' : 'eye'}
-                  size={24}
-                  color={theme.colors.gray['400']}
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
-                />
-              </View>
+              <ThemedTextInput
+                placeholder='Enter your password'
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize='none'
+                rightIcon={
+                  <MaterialCommunityIcons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color={theme.colors.gray['400']}
+                  />
+                }
+                onRightIconPress={() => setShowPassword(!showPassword)}
+              />
             </View>
 
             <ThemedButton
@@ -163,10 +159,10 @@ export default function Login() {
             />
 
             <ThemedButton
-              title={loading ? 'Signing In...' : 'Sign In'}
+              title={authLoading ? 'Signing In...' : 'Sign In'}
               variant='primary'
               onPress={handleLogin}
-              disabled={loading}
+              disabled={authLoading}
               style={{ marginTop: 16 }}
             />
           </ThemedCard>
@@ -240,21 +236,6 @@ export default function Login() {
               style={{ padding: 0, minHeight: 0 }}
             />
           </View>
-
-          {/* Guest Access */}
-          <ThemedButton
-            title='Continue as Guest'
-            variant='ghost'
-            onPress={() => router.push('/')}
-            icon={
-              <MaterialCommunityIcons
-                name='account-outline'
-                size={20}
-                color={theme.colors.primary['500']}
-              />
-            }
-            style={{ marginTop: 16 }}
-          />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -297,16 +278,6 @@ const styles = StyleSheet.create({
   },
   formField: {
     marginBottom: 16,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 8,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-    padding: 8,
   },
   divider: {
     flexDirection: 'row',

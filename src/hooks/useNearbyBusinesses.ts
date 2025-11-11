@@ -223,7 +223,7 @@ export const useNearbyBusinesses = (): UseNearbyBusinessesReturn => {
   // Get distance to a specific business
   const getBusinessDistance = useCallback(
     (businessId: string): number | null => {
-      const business = nearbyBusinesses.find((b) => b.id === businessId);
+      const business = nearbyBusinesses.find(b => b.id === businessId);
       return business?.distance || null;
     },
     [nearbyBusinesses]
@@ -231,14 +231,14 @@ export const useNearbyBusinesses = (): UseNearbyBusinessesReturn => {
 
   // Sort businesses by distance
   const sortByDistance = useCallback(() => {
-    setNearbyBusinesses((prev) =>
+    setNearbyBusinesses(prev =>
       [...prev].sort((a, b) => (a.distance || 0) - (b.distance || 0))
     );
   }, []);
 
   // Sort businesses by rating
   const sortByRating = useCallback(() => {
-    setNearbyBusinesses((prev) =>
+    setNearbyBusinesses(prev =>
       [...prev].sort((a, b) => (b.rating || 0) - (a.rating || 0))
     );
   }, []);
@@ -260,7 +260,6 @@ export const useNearbyBusinesses = (): UseNearbyBusinessesReturn => {
         }
       } catch (err) {
         // Silently fail on initialization - user can manually trigger location
-        console.log('Could not initialize location on mount:', err);
       }
     };
 

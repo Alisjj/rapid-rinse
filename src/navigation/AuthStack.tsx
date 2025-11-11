@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { authScreenOptions, fadeAnimation } from './animations';
 import type { AuthStackParamList } from '../types';
+import { ForgotPasswordScreen } from '../screens/auth';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -9,7 +10,7 @@ export function AuthStack() {
   return (
     <Stack.Navigator screenOptions={authScreenOptions}>
       <Stack.Screen
-        name="Login"
+        name='Login'
         component={LoginScreen}
         options={{
           title: 'Sign In',
@@ -17,7 +18,7 @@ export function AuthStack() {
         }}
       />
       <Stack.Screen
-        name="Register"
+        name='Register'
         component={RegisterScreen}
         options={{
           title: 'Create Account',
@@ -25,7 +26,7 @@ export function AuthStack() {
         }}
       />
       <Stack.Screen
-        name="ForgotPassword"
+        name='ForgotPassword'
         component={ForgotPasswordScreen}
         options={{
           headerShown: true,
@@ -44,9 +45,5 @@ function LoginScreen() {
 }
 
 function RegisterScreen() {
-  return null; // Will be implemented in screen migration tasks
-}
-
-function ForgotPasswordScreen() {
   return null; // Will be implemented in screen migration tasks
 }

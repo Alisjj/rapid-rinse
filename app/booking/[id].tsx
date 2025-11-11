@@ -3,50 +3,125 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/theme';
 import { ThemedText, ThemedCard, ThemedButton } from '@/components/ui';
 import { Header } from '@/components/navigation';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { useBookings } from '@/hooks';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-// Mock booking data
-const mockBookingDetails: Record<string, any> = {
-  '1': {
-    id: '1',
-    serviceName: 'Express Wash',
-    businessName: 'Quick Wash Express',
-    businessAddress: '123 Main St, City, State',
-    businessPhone: '+1 (234) 567-8900',
-    scheduledDate: new Date(Date.now() + 86400000),
-    status: 'confirmed',
-    totalAmount: 25.99,
-    paymentStatus: 'paid',
-    vehicleInfo: {
-      make: 'Toyota',
-      model: 'Camry',
-      year: 2020,
-      color: 'Silver',
-      licensePlate: 'ABC-1234',
-    },
-    serviceDetails: [
-      { name: 'Express Wash', price: 15.99, duration: 15 },
-      { name: 'Tire Shine', price: 5.0, duration: 5 },
-      { name: 'Air Freshener', price: 5.0, duration: 2 },
-    ],
-    notes: 'Please pay extra attention to the wheels',
-    confirmationCode: 'RR-2024-001',
-  },
-};
 
 export default function BookingDetail() {
   const { theme } = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { getBookingById } = useBookings();
 
-  const booking = mockBookingDetails[id as string] || mockBookingDetails['1'];
+  const [booking, setBooking] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const loadBooking = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+        const bookingData = await getBookingById(id as string);
+        if (bookingData) {
+          setBooking(bookingData);
+        } else {
+          setError('Booking not found');
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to load booking details';
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBooking();
+  }, [id, getBookingById]);
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <SafeAreaView
+          style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
+          <Header
+            title='Booking Details'
+            showBackButton
+            onBackPress={() => router.back()}
+          />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              size='large'
+              color={theme.colors.primary['500']}
+            />
+            <ThemedText
+              variant='body'
+              colorVariant='gray'
+              colorShade='600'
+              style={{ marginTop: 12 }}
+            >
+              Loading booking details...
+            </ThemedText>
+          </View>
+        </SafeAreaView>
+      </ProtectedRoute>
+    );
+  }
+
+  if (error || !booking) {
+    return (
+      <ProtectedRoute>
+        <SafeAreaView
+          style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+          ]}
+        >
+          <Header
+            title='Booking Details'
+            showBackButton
+            onBackPress={() => router.back()}
+          />
+          <View style={styles.errorContainer}>
+            <MaterialCommunityIcons
+              name='alert-circle'
+              size={48}
+              color={theme.colors.error['500']}
+            />
+            <ThemedText
+              variant='h4'
+              colorVariant='error'
+              colorShade='600'
+              style={{ marginTop: 16, textAlign: 'center' }}
+            >
+              {error || 'Booking not found'}
+            </ThemedText>
+            <ThemedButton
+              title='Go Back'
+              variant='primary'
+              onPress={() => router.back()}
+              style={{ marginTop: 24 }}
+            />
+          </View>
+        </SafeAreaView>
+      </ProtectedRoute>
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -88,180 +163,155 @@ export default function BookingDetail() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <Header
-        title='Booking Details'
-        showBackButton
-        onBackPress={() => router.back()}
-      />
+    <ProtectedRoute>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <Header
+          title='Booking Details'
+          showBackButton
+          onBackPress={() => router.back()}
+        />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <ThemedCard variant='elevated' style={styles.card}>
-          <View style={styles.statusHeader}>
-            <View>
-              <ThemedText
-                variant='caption'
-                colorVariant='gray'
-                colorShade='600'
-              >
-                Confirmation Code
-              </ThemedText>
-              <ThemedText variant='h4' style={{ marginTop: 2 }}>
-                {booking.confirmationCode}
-              </ThemedText>
-            </View>
-            <View
-              style={[
-                styles.statusBadge,
-                { backgroundColor: getStatusColor(booking.status) },
-              ]}
-            >
-              <ThemedText
-                variant='caption'
-                style={{
-                  color: '#FFFFFF',
-                  fontWeight: '600',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {booking.status}
-              </ThemedText>
-            </View>
-          </View>
-        </ThemedCard>
-
-        <ThemedCard variant='elevated' style={styles.card}>
-          <ThemedText variant='h3' style={{ marginBottom: 12 }}>
-            {booking.serviceName}
-          </ThemedText>
-
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons
-              name='store'
-              size={20}
-              color={theme.colors.primary['500']}
-            />
-            <View style={{ marginLeft: 8, flex: 1 }}>
-              <ThemedText variant='body' style={{ fontWeight: '600' }}>
-                {booking.businessName}
-              </ThemedText>
-              <ThemedText
-                variant='caption'
-                colorVariant='gray'
-                colorShade='600'
-              >
-                {booking.businessAddress}
-              </ThemedText>
-            </View>
-          </View>
-
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons
-              name='calendar'
-              size={20}
-              color={theme.colors.primary['500']}
-            />
-            <ThemedText
-              variant='body'
-              style={{ marginLeft: 8, fontWeight: '600' }}
-            >
-              {formatDate(booking.scheduledDate)}
-            </ThemedText>
-          </View>
-
-          <View style={styles.infoRow}>
-            <MaterialCommunityIcons
-              name='clock'
-              size={20}
-              color={theme.colors.primary['500']}
-            />
-            <ThemedText
-              variant='body'
-              style={{ marginLeft: 8, fontWeight: '600' }}
-            >
-              {formatTime(booking.scheduledDate)}
-            </ThemedText>
-          </View>
-        </ThemedCard>
-
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Vehicle Information
-          </ThemedText>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <ThemedCard variant='elevated' style={styles.card}>
-            <View style={styles.vehicleRow}>
-              <MaterialCommunityIcons
-                name='car'
-                size={32}
-                color={theme.colors.primary['500']}
-              />
-              <View style={{ marginLeft: 12, flex: 1 }}>
-                <ThemedText variant='h4'>
-                  {booking.vehicleInfo.year} {booking.vehicleInfo.make}{' '}
-                  {booking.vehicleInfo.model}
-                </ThemedText>
+            <View style={styles.statusHeader}>
+              <View>
                 <ThemedText
-                  variant='body'
+                  variant='caption'
                   colorVariant='gray'
                   colorShade='600'
-                  style={{ marginTop: 2 }}
                 >
-                  {booking.vehicleInfo.color} •{' '}
-                  {booking.vehicleInfo.licensePlate}
+                  Booking ID
+                </ThemedText>
+                <ThemedText variant='h4' style={{ marginTop: 2 }}>
+                  {booking.id}
+                </ThemedText>
+              </View>
+              <View
+                style={[
+                  styles.statusBadge,
+                  { backgroundColor: getStatusColor(booking.status) },
+                ]}
+              >
+                <ThemedText
+                  variant='caption'
+                  style={{
+                    color: '#FFFFFF',
+                    fontWeight: '600',
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  {booking.status}
                 </ThemedText>
               </View>
             </View>
           </ThemedCard>
-        </View>
 
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Service Breakdown
-          </ThemedText>
           <ThemedCard variant='elevated' style={styles.card}>
-            {booking.serviceDetails.map((service: any, index: number) => (
-              <View
-                key={index}
-                style={[
-                  styles.serviceRow,
-                  index < booking.serviceDetails.length - 1 &&
-                    styles.serviceRowBorder,
-                ]}
-              >
-                <View style={{ flex: 1 }}>
-                  <ThemedText variant='body' style={{ fontWeight: '600' }}>
-                    {service.name}
-                  </ThemedText>
-                  <ThemedText
-                    variant='caption'
-                    colorVariant='gray'
-                    colorShade='600'
-                  >
-                    {service.duration} minutes
-                  </ThemedText>
-                </View>
+            <ThemedText variant='h3' style={{ marginBottom: 12 }}>
+              {booking.serviceName || 'Car Wash Service'}
+            </ThemedText>
+
+            <View style={styles.infoRow}>
+              <MaterialCommunityIcons
+                name='store'
+                size={20}
+                color={theme.colors.primary['500']}
+              />
+              <View style={{ marginLeft: 8, flex: 1 }}>
                 <ThemedText variant='body' style={{ fontWeight: '600' }}>
-                  {formatPrice(service.price)}
+                  {booking.businessName || 'Business Name'}
+                </ThemedText>
+                <ThemedText
+                  variant='caption'
+                  colorVariant='gray'
+                  colorShade='600'
+                >
+                  {booking.businessAddress || 'Business Address'}
                 </ThemedText>
               </View>
-            ))}
+            </View>
 
-            <View style={styles.totalRow}>
-              <ThemedText variant='h4'>Total</ThemedText>
+            <View style={styles.infoRow}>
+              <MaterialCommunityIcons
+                name='calendar'
+                size={20}
+                color={theme.colors.primary['500']}
+              />
               <ThemedText
-                variant='h4'
-                colorVariant='primary'
-                style={{ fontWeight: '700' }}
+                variant='body'
+                style={{ marginLeft: 8, fontWeight: '600' }}
               >
-                {formatPrice(booking.totalAmount)}
+                {formatDate(booking.scheduledDate)}
+              </ThemedText>
+            </View>
+
+            <View style={styles.infoRow}>
+              <MaterialCommunityIcons
+                name='clock'
+                size={20}
+                color={theme.colors.primary['500']}
+              />
+              <ThemedText
+                variant='body'
+                style={{ marginLeft: 8, fontWeight: '600' }}
+              >
+                {formatTime(booking.scheduledDate)}
               </ThemedText>
             </View>
           </ThemedCard>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Payment Summary
+            </ThemedText>
+            <ThemedCard variant='elevated' style={styles.card}>
+              <View style={styles.totalRow}>
+                <ThemedText variant='h4'>Total Amount</ThemedText>
+                <ThemedText
+                  variant='h4'
+                  colorVariant='primary'
+                  style={{ fontWeight: '700' }}
+                >
+                  {formatPrice(booking.totalAmount)}
+                </ThemedText>
+              </View>
+              {booking.serviceDuration && (
+                <View style={styles.infoRow}>
+                  <MaterialCommunityIcons
+                    name='clock-outline'
+                    size={20}
+                    color={theme.colors.gray['500']}
+                  />
+                  <ThemedText
+                    variant='body'
+                    colorVariant='gray'
+                    colorShade='600'
+                    style={{ marginLeft: 8 }}
+                  >
+                    Estimated duration: {booking.serviceDuration} minutes
+                  </ThemedText>
+                </View>
+              )}
+            </ThemedCard>
+          </View>
+
+          {booking.notes && (
+            <View style={styles.section}>
+              <ThemedText variant='h3' style={styles.sectionTitle}>
+                Notes
+              </ThemedText>
+              <ThemedCard variant='elevated' style={styles.card}>
+                <ThemedText variant='body' colorVariant='gray' colorShade='700'>
+                  {booking.notes}
+                </ThemedText>
+              </ThemedCard>
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 
@@ -318,5 +368,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
     borderTopWidth: 2,
     borderTopColor: '#D1D5DB',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
   },
 });

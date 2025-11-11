@@ -1,137 +1,249 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  RefreshControl,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
-import { ThemedText } from '@/components/ui';
+import { ThemedText, ThemedCard } from '@/components/ui';
 import { BusinessCard } from '@/components/business';
 import { Header } from '@/components/navigation';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { useNearbyBusinesses } from '@/hooks';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-// Mock data - expanded list
-const mockBusinesses = [
-  {
-    id: '1',
-    name: 'Quick Wash Express',
-    description: 'Fast and reliable car wash service',
-    address: '123 Main St, City, State',
-    phone: '+1234567890',
-    email: 'info@quickwash.com',
-    ownerId: '1',
-    services: [],
-    operatingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    rating: 4.5,
-    reviewCount: 128,
-    distance: 0.8,
-    isOpen: true,
-  },
-  {
-    id: '2',
-    name: 'Premium Auto Spa',
-    description: 'Luxury car detailing and wash',
-    address: '456 Oak Ave, City, State',
-    phone: '+1234567891',
-    email: 'info@premiumspa.com',
-    ownerId: '2',
-    services: [],
-    operatingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    rating: 4.8,
-    reviewCount: 256,
-    distance: 1.2,
-    isOpen: true,
-  },
-  {
-    id: '3',
-    name: 'Eco Clean Car Wash',
-    description: 'Environmentally friendly car wash',
-    address: '789 Green Blvd, City, State',
-    phone: '+1234567892',
-    email: 'info@ecoclean.com',
-    ownerId: '3',
-    services: [],
-    operatingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    rating: 4.6,
-    reviewCount: 89,
-    distance: 1.5,
-    isOpen: true,
-  },
-  {
-    id: '4',
-    name: 'Shine & Go',
-    description: 'Quick service, great results',
-    address: '321 Speed Way, City, State',
-    phone: '+1234567893',
-    email: 'info@shineandgo.com',
-    ownerId: '4',
-    services: [],
-    operatingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    rating: 4.3,
-    reviewCount: 67,
-    distance: 2.1,
-    isOpen: false,
-  },
-  {
-    id: '5',
-    name: 'Deluxe Detail Center',
-    description: 'Premium detailing services',
-    address: '555 Luxury Lane, City, State',
-    phone: '+1234567894',
-    email: 'info@deluxedetail.com',
-    ownerId: '5',
-    services: [],
-    operatingHours: {},
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    rating: 4.9,
-    reviewCount: 342,
-    distance: 2.8,
-    isOpen: true,
-  },
-];
+// Mock data for fallback
+// Firebase data is loaded automatically by the useNearbyBusinesses hook
 
 export default function NearbyBusinesses() {
   const { theme } = useTheme();
   const router = useRouter();
+  const {
+    nearbyBusinesses,
+    loading,
+    refreshing,
+    error,
+    userLocation,
+    refreshNearbyBusinesses,
+    getCurrentLocationAndLoad,
+  } = useNearbyBusinesses();
+
+  // Load user location and nearby businesses (handled by useNearbyBusinesses hook)
+  useEffect(() => {
+    // Hook automatically loads location and businesses
+  }, []);
+
+  // Load user location and nearby businesses (handled by useNearbyBusinesses hook)
+
+  const handleRefresh = async () => {
+    await refreshNearbyBusinesses();
+  };
+
+  const handleRetryLocation = async () => {
+    await getCurrentLocationAndLoad();
+  };
+
+  // nearbyBusinesses already includes distance information from the hook
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <Header
-        title='Nearby Car Washes'
-        showBackButton
-        onBackPress={() => router.back()}
-      />
+    <ProtectedRoute>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <Header
+          title='Nearby Car Washes'
+          showBackButton
+          onBackPress={() => router.back()}
+        />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <ThemedText variant='h3'>All Nearby Locations</ThemedText>
-          <ThemedText
-            variant='body'
-            colorVariant='gray'
-            colorShade='600'
-            style={{ marginTop: 4 }}
-          >
-            {mockBusinesses.length} car washes found near you
-          </ThemedText>
-        </View>
-
-        {mockBusinesses.map(business => (
-          <View key={business.id} style={styles.businessCard}>
-            <BusinessCard
-              business={business}
-              onPress={() => router.push(`/business/${business.id}`)}
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.colors.primary['500']}
             />
+          }
+        >
+          {error && (
+            <View style={styles.errorContainer}>
+              <ThemedCard
+                variant='elevated'
+                style={[
+                  styles.errorCard,
+                  { backgroundColor: theme.colors.warning['50'] },
+                ]}
+              >
+                <View style={styles.errorContent}>
+                  <MaterialCommunityIcons
+                    name='map-marker-off'
+                    size={24}
+                    color={theme.colors.warning['500']}
+                  />
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <ThemedText
+                      variant='body'
+                      style={{ color: theme.colors.warning['700'] }}
+                    >
+                      {error}
+                    </ThemedText>
+                    <ThemedText
+                      variant='caption'
+                      style={{
+                        color: theme.colors.warning['600'],
+                        marginTop: 4,
+                      }}
+                    >
+                      Showing all available businesses
+                    </ThemedText>
+                  </View>
+                  <TouchableOpacity onPress={handleRetryLocation}>
+                    <MaterialCommunityIcons
+                      name='refresh'
+                      size={20}
+                      color={theme.colors.warning['500']}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </ThemedCard>
+            </View>
+          )}
+
+          {error && (
+            <View style={styles.errorContainer}>
+              <ThemedCard
+                variant='elevated'
+                style={[
+                  styles.errorCard,
+                  { backgroundColor: theme.colors.error['50'] },
+                ]}
+              >
+                <View style={styles.errorContent}>
+                  <MaterialCommunityIcons
+                    name='alert-circle'
+                    size={24}
+                    color={theme.colors.error['500']}
+                  />
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <ThemedText
+                      variant='body'
+                      style={{ color: theme.colors.error['700'] }}
+                    >
+                      {error}
+                    </ThemedText>
+                  </View>
+                  <TouchableOpacity>
+                    <MaterialCommunityIcons
+                      name='close'
+                      size={20}
+                      color={theme.colors.error['500']}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </ThemedCard>
+            </View>
+          )}
+
+          <View style={styles.header}>
+            <ThemedText variant='h3'>
+              {userLocation ? 'Nearby Locations' : 'All Locations'}
+            </ThemedText>
+            {loading ? (
+              <View style={styles.locationStatus}>
+                <ActivityIndicator
+                  size='small'
+                  color={theme.colors.primary['500']}
+                />
+                <ThemedText
+                  variant='caption'
+                  colorVariant='gray'
+                  colorShade='600'
+                  style={{ marginLeft: 8 }}
+                >
+                  Getting your location...
+                </ThemedText>
+              </View>
+            ) : (
+              <ThemedText
+                variant='body'
+                colorVariant='gray'
+                colorShade='600'
+                style={{ marginTop: 4 }}
+              >
+                {nearbyBusinesses.length} car wash
+                {nearbyBusinesses.length !== 1 ? 'es' : ''} found
+                {userLocation ? ' near you' : ''}
+              </ThemedText>
+            )}
           </View>
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+
+          {loading && !refreshing ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator
+                size='large'
+                color={theme.colors.primary['500']}
+              />
+              <ThemedText
+                variant='body'
+                colorVariant='gray'
+                colorShade='600'
+                style={{ marginTop: 12 }}
+              >
+                Loading nearby businesses...
+              </ThemedText>
+            </View>
+          ) : nearbyBusinesses.length > 0 ? (
+            nearbyBusinesses.map((business: any) => (
+              <View key={business.id} style={styles.businessCard}>
+                <BusinessCard
+                  business={business}
+                  onPress={() => router.push(`/business/${business.id}`)}
+                />
+              </View>
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons
+                name='map-marker-off'
+                size={48}
+                color={theme.colors.gray['400']}
+              />
+              <ThemedText
+                variant='body'
+                colorVariant='gray'
+                colorShade='600'
+                style={{ marginTop: 12, textAlign: 'center' }}
+              >
+                {userLocation
+                  ? 'No car washes found within 10km of your location'
+                  : 'No businesses available at the moment'}
+              </ThemedText>
+              {!userLocation && (
+                <TouchableOpacity
+                  onPress={handleRetryLocation}
+                  style={styles.retryButton}
+                >
+                  <ThemedText
+                    variant='button'
+                    style={{ color: theme.colors.primary['500'] }}
+                  >
+                    Enable Location
+                  </ThemedText>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 
@@ -149,5 +261,36 @@ const styles = StyleSheet.create({
   businessCard: {
     marginHorizontal: 16,
     marginBottom: 12,
+  },
+  loadingContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorContainer: {
+    marginHorizontal: 16,
+    marginTop: 16,
+  },
+  errorCard: {
+    padding: 12,
+  },
+  errorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  locationStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  retryButton: {
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
 });

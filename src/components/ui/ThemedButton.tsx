@@ -203,7 +203,10 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    ...theme.shadows.sm,
+    // Only apply shadow to solid button variants (primary, secondary)
+    ...(variant === 'primary' || variant === 'secondary'
+      ? theme.shadows.sm
+      : {}),
   };
 
   const buttonStyles: ViewStyle = {
@@ -226,7 +229,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       return (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <ActivityIndicator
-            size="small"
+            size='small'
             color={getSpinnerColor()}
             style={{ marginRight: title ? getIconSpacing() : 0 }}
           />
@@ -260,7 +263,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
     <TouchableOpacity
       style={[buttonStyles, style]}
       disabled={isDisabled}
-      accessibilityRole="button"
+      accessibilityRole='button'
       accessibilityLabel={accessibilityLabel || title}
       accessibilityState={{
         disabled: isDisabled,

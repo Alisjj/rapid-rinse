@@ -1,4 +1,5 @@
 import { navigationRef } from './navigationRef';
+import { auth } from '@/services/firebase/config';
 
 // Navigation guard types
 export type NavigationGuard = (
@@ -35,19 +36,23 @@ export async function canNavigate(to: string, from?: string): Promise<boolean> {
 
 // Authentication guard
 export const authGuard: NavigationGuard = (to: string) => {
-  // This would typically check authentication state
-  // For now, we'll assume authentication is handled at the root level
+  // Check authentication state using Firebase Auth
+  const currentUser = auth.currentUser;
+
   const authRequiredRoutes = [
     'Main',
     'BookingDetails',
     'BusinessDetails',
     'ServiceBooking',
+    'Bookings',
+    'Profile',
+    'BusinessDetail',
+    'BookService',
   ];
 
   if (authRequiredRoutes.includes(to)) {
     // Check if user is authenticated
-    // This should be replaced with actual auth state check
-    return true; // Placeholder - will be implemented with auth system
+    return !!currentUser;
   }
 
   return true;
@@ -61,7 +66,7 @@ export const bookingGuard: NavigationGuard = async (
   if (from === 'ServiceBooking' && to !== 'BookingConfirmation') {
     // Show confirmation dialog
     // This would typically show a native alert or custom modal
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       // Placeholder for confirmation dialog
       // In a real implementation, this would show a dialog
       resolve(true);

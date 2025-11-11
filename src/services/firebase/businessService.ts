@@ -21,15 +21,13 @@ import { Business, Service, OperatingHours } from '../../types';
 import { formatDocumentData } from './utils';
 
 // Extended business interface with location data
-export interface BusinessWithLocation extends Business {
-  location?: {
+export interface BusinessWithLocation extends Omit<Business, 'location'> {
+  location: {
     latitude: number;
     longitude: number;
     address: string;
   };
   distance?: number; // Distance from user in kilometers
-  rating?: number;
-  reviewCount?: number;
   isOpen?: boolean;
 }
 
@@ -106,7 +104,7 @@ export class BusinessService {
       const businesses: BusinessWithLocation[] = [];
       let lastDoc: DocumentSnapshot | undefined;
 
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const data = formatDocumentData<BusinessWithLocation>({
           id: doc.id,
           ...doc.data(),
@@ -130,14 +128,14 @@ export class BusinessService {
       let filteredBusinesses = businesses;
       if (filters?.location?.radius) {
         filteredBusinesses = businesses.filter(
-          (business) =>
+          business =>
             !business.distance || business.distance <= filters.location!.radius
         );
       }
 
       // Filter by price range if specified
       if (filters?.priceRange) {
-        filteredBusinesses = filteredBusinesses.filter((business) => {
+        filteredBusinesses = filteredBusinesses.filter(business => {
           const avgPrice = this.calculateAverageServicePrice(business.services);
           return (
             avgPrice >= filters.priceRange!.min &&
@@ -218,7 +216,7 @@ export class BusinessService {
       const businesses: BusinessWithLocation[] = [];
       const searchLower = searchTerm.toLowerCase();
 
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const data = formatDocumentData<BusinessWithLocation>({
           id: doc.id,
           ...doc.data(),
@@ -230,7 +228,7 @@ export class BusinessService {
           .toLowerCase()
           .includes(searchLower);
         const matchesServices = data.services.some(
-          (service) =>
+          service =>
             service.name.toLowerCase().includes(searchLower) ||
             service.description.toLowerCase().includes(searchLower)
         );
@@ -265,7 +263,7 @@ export class BusinessService {
 
       // Sort by distance
       return businesses
-        .filter((business) => business.distance !== undefined)
+        .filter(business => business.distance !== undefined)
         .sort((a, b) => (a.distance || 0) - (b.distance || 0))
         .slice(0, limitCount);
     } catch (error) {

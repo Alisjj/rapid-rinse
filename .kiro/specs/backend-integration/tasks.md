@@ -1,0 +1,442 @@
+# Implementation Plan
+
+- [x] 1. Firebase Project Setup and Configuration
+  - Create Firebase project in Firebase Console for development environment
+  - Install Firebase SDK dependencies (firebase, @react-native-firebase/app, @react-native-firebase/auth, @react-native-firebase/firestore, @react-native-firebase/storage)
+  - Create firebaseConfig.ts with project credentials
+  - Initialize Firebase in app entry point
+  - Configure Firebase for iOS and Android platforms
+  - _Requirements: 1.1, 1.2, 11.1_
+
+- [x] 2. Implement Firebase Authentication Service
+  - [x] 2.1 Create authService.ts with sign up, sign in, sign out, and password reset functions
+    - Implement signUp function with email/password and user data creation
+    - Implement signIn function with credential validation
+    - Implement signOut function with session cleanup
+    - Implement resetPassword function with email link
+    - Add getCurrentUser and onAuthStateChanged listeners
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
+  - [x] 2.2 Create AuthContext provider for app-wide authentication state
+    - Set up React Context with user state and loading indicators
+    - Implement auth state persistence using AsyncStorage
+    - Add authentication error handling and user-friendly messages
+    - _Requirements: 1.1, 1.4_
+  - [x] 2.3 Update login and register screens to use real authentication
+    - Replace mock authentication with Firebase authService calls
+    - Add loading states during authentication
+    - Display authentication errors to users
+    - Implement automatic navigation after successful auth
+    - _Requirements: 1.1, 1.2_
+
+- [x] 3. Set Up Firestore Database and Security Rules
+  - [x] 3.1 Create Firestore collections structure
+    - Create users collection with user profile schema
+    - Create businesses collection with business data schema
+    - Create bookings collection with booking schema
+    - Create vehicles collection with vehicle schema
+    - Create reviews collection with review schema
+    - _Requirements: 2.1, 2.3, 3.1, 5.2, 8.2_
+  - [x] 3.2 Deploy Firestore security rules
+    - Write security rules for users collection (authenticated read, owner write)
+    - Write security rules for businesses collection (public read, owner write)
+    - Write security rules for bookings collection (user and business owner access)
+    - Write security rules for vehicles collection (owner only access)
+    - Write security rules for reviews collection (public read, owner write)
+    - Deploy rules to Firebase Console
+    - _Requirements: 11.4_
+  - [x] 3.3 Create composite indexes for complex queries
+    - Create index for location-based business queries
+    - Create index for user bookings sorted by date
+    - Create index for business reviews sorted by date
+    - _Requirements: 2.1, 2.2, 3.1_
+
+- [x] 4. Implement Firestore Service Layer
+  - [x] 4.1 Create firestoreService.ts with business operations
+    - Implement getBusinesses with geolocation filtering
+    - Implement getBusinessById for business details
+    - Implement searchBusinesses with text search
+    - Add real-time listeners for business data updates
+    - _Requirements: 2.1, 2.2, 2.3, 2.4_
+  - [x] 4.2 Implement booking operations in firestoreService
+    - Create createBooking function with availability checking
+    - Create getBookings function for user booking history
+    - Create updateBooking function for status changes
+    - Create cancelBooking function with refund logic
+    - Add real-time listeners for booking status updates
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [x] 4.3 Implement user profile and vehicle operations
+    - Create getUserProfile and updateUserProfile functions
+    - Create addVehicle, getVehicles, and deleteVehicle functions
+    - Implement profile picture upload to Firebase Storage
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [x] 4.4 Implement review operations
+    - Create addReview function with validation
+    - Create getReviews function with pagination
+    - Implement average rating calculation
+    - Add review flagging for moderation
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+
+- [x] 5. Create Business Context Provider
+  - [x] 5.1 Implement BusinessContext with state management
+    - Set up context with businesses array and loading state
+    - Implement searchBusinesses function
+    - Implement getBusinessById function
+    - Add refreshBusinesses function
+    - Connect to firestoreService
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [x] 5.2 Update home screen to use BusinessContext
+    - Replace mock business data with context data
+    - Add loading indicators while fetching businesses
+    - Implement error handling for failed requests
+    - Add pull-to-refresh functionality
+    - _Requirements: 2.1, 2.3_
+  - [x] 5.3 Update nearby screen to use real location-based queries
+    - Integrate location service for user coordinates
+    - Filter businesses by distance using Firestore geoqueries
+    - Display calculated distances from user location
+    - _Requirements: 2.1, 7.2, 7.3_
+  - [x] 5.4 Update business detail screen with real data
+    - Fetch business details from Firestore
+    - Display real-time operating hours and services
+    - Load business images from Firebase Storage
+    - Show aggregated reviews and ratings
+    - _Requirements: 2.3, 2.4, 2.5_
+
+- [ ] 6. Create Booking Context Provider
+  - [ ] 6.1 Implement BookingContext with state management
+    - Set up context with bookings array and loading state
+    - Implement createBooking function with validation
+    - Implement updateBooking and cancelBooking functions
+    - Add refreshBookings function
+    - Connect to firestoreService
+    - _Requirements: 3.1, 3.2, 3.3, 3.4_
+  - [ ] 6.2 Update book-service screen to create real bookings
+    - Replace mock booking creation with context function
+    - Add availability checking before booking
+    - Implement real-time booking confirmation
+    - Add error handling for booking failures
+    - _Requirements: 3.1, 3.2_
+  - [ ] 6.3 Update bookings screen to display real booking data
+    - Fetch user bookings from Firestore
+    - Implement real-time booking status updates
+    - Add loading and empty states
+    - Implement pull-to-refresh
+    - _Requirements: 3.1, 3.5_
+  - [ ] 6.4 Update booking detail screen with real-time updates
+    - Fetch booking details from Firestore
+    - Add real-time listener for status changes
+    - Implement cancel and reschedule functionality
+    - Display payment status and transaction details
+    - _Requirements: 3.3, 3.4, 3.5_
+
+- [ ] 7. Implement Firebase Storage Service
+  - [ ] 7.1 Create storageService.ts for image management
+    - Implement uploadImage function with compression
+    - Implement deleteImage function
+    - Implement getImageUrl function
+    - Add progress tracking for uploads
+    - _Requirements: 2.5, 5.4_
+  - [ ] 7.2 Update profile screen to upload profile pictures
+    - Add image picker for profile photo selection
+    - Implement image upload to Firebase Storage
+    - Update user profile with image URL
+    - Add loading indicator during upload
+    - _Requirements: 5.4_
+
+- [ ] 8. Integrate Paystack Payment Gateway
+  - [ ] 8.1 Set up Paystack account and get API keys
+    - Create Paystack account for Nigeria
+    - Get test and live API keys
+    - Configure webhook URL in Paystack dashboard
+    - _Requirements: 4.1_
+  - [ ] 8.2 Install Paystack SDK and create payment service
+    - Install react-native-paystack-webview package
+    - Create paystackService.ts with payment functions
+    - Implement initializePayment function
+    - Implement verifyPayment function
+    - Implement processRefund function
+    - _Requirements: 4.1, 4.2, 4.4_
+  - [ ] 8.3 Create payment screen with Paystack integration
+    - Build payment UI with amount display
+    - Integrate Paystack WebView for payment
+    - Handle payment success and failure callbacks
+    - Update booking payment status after successful payment
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [ ] 8.4 Implement payment verification and receipt generation
+    - Verify payment with Paystack API after completion
+    - Update Firestore booking with payment details
+    - Generate and display payment receipt
+    - Send receipt via email or SMS
+    - _Requirements: 4.2_
+
+- [ ] 9. Set Up Cloud Functions for Backend Logic
+  - [ ] 9.1 Initialize Firebase Cloud Functions project
+    - Install Firebase CLI and initialize functions
+    - Set up TypeScript for Cloud Functions
+    - Configure environment variables for API keys
+    - _Requirements: 3.2, 4.2_
+  - [ ] 9.2 Create booking notification Cloud Function
+    - Implement onCreate trigger for bookings collection
+    - Send push notification to business owner on new booking
+    - Send confirmation notification to customer
+    - Add error handling and logging
+    - _Requirements: 3.2, 6.1, 6.2_
+  - [ ] 9.3 Create Paystack webhook Cloud Function
+    - Implement HTTP endpoint for Paystack webhooks
+    - Verify webhook signature for security
+    - Update booking payment status on successful payment
+    - Send payment confirmation notification
+    - _Requirements: 4.2_
+  - [ ] 9.4 Create scheduled reminder Cloud Function
+    - Implement scheduled function to run hourly
+    - Query bookings scheduled for next 24 hours
+    - Send reminder notifications to users
+    - _Requirements: 6.2_
+  - [ ] 9.5 Deploy Cloud Functions to Firebase
+    - Test functions locally with Firebase Emulator
+    - Deploy functions to Firebase project
+    - Monitor function logs and performance
+    - _Requirements: 3.2, 4.2, 6.2_
+
+- [ ] 10. Implement Push Notification Service
+  - [ ] 10.1 Set up Expo Notifications
+    - Install expo-notifications package
+    - Configure notification permissions for iOS and Android
+    - Create notificationService.ts with notification functions
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 10.2 Implement push notification registration
+    - Request notification permissions from user
+    - Register device for push notifications
+    - Store push token in user profile in Firestore
+    - Handle token refresh
+    - _Requirements: 6.1, 6.5_
+  - [ ] 10.3 Implement notification handlers
+    - Handle foreground notifications
+    - Handle background notifications
+    - Handle notification tap actions
+    - Navigate to relevant screen on notification tap
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [ ] 10.4 Add notification preferences to user profile
+    - Create notification settings screen
+    - Allow users to enable/disable notifications
+    - Store preferences in Firestore
+    - Respect user preferences in Cloud Functions
+    - _Requirements: 6.5_
+
+- [ ] 11. Implement Location Services
+  - [ ] 11.1 Set up Expo Location
+    - Install expo-location package
+    - Create locationService.ts with location functions
+    - Implement permission request handling
+    - _Requirements: 7.1, 7.2_
+  - [ ] 11.2 Implement location-based business search
+    - Get user's current location
+    - Query businesses within specified radius
+    - Calculate and display distances
+    - Sort businesses by distance
+    - _Requirements: 7.2, 7.3_
+  - [ ] 11.3 Integrate maps for directions
+    - Implement openMapsApp function
+    - Open native maps app with business address
+    - Support both iOS Maps and Google Maps
+    - _Requirements: 7.4_
+  - [ ] 11.4 Add manual location entry fallback
+    - Create location search input
+    - Allow users to enter location manually
+    - Geocode address to coordinates
+    - _Requirements: 7.5_
+
+- [ ] 12. Implement Review and Rating System
+  - [ ] 12.1 Create review submission screen
+    - Build UI for rating (1-5 stars) and comment
+    - Validate review input
+    - Submit review to Firestore
+    - Update business rating and review count
+    - _Requirements: 8.1, 8.2_
+  - [ ] 12.2 Display reviews on business detail screen
+    - Fetch reviews from Firestore
+    - Display reviews with user info and timestamp
+    - Sort reviews by most recent
+    - Implement pagination for large review lists
+    - _Requirements: 8.3, 8.4_
+  - [ ] 12.3 Implement review prompts after booking completion
+    - Trigger review prompt when booking status is "completed"
+    - Show review dialog or navigate to review screen
+    - Track if user has already reviewed
+    - _Requirements: 6.4, 8.1_
+
+- [ ] 13. Implement User Profile Management
+  - [ ] 13.1 Update profile screen with real data
+    - Fetch user profile from Firestore
+    - Display user information (name, email, phone, photo)
+    - Add edit profile functionality
+    - Implement profile picture upload
+    - _Requirements: 5.1, 5.4_
+  - [ ] 13.2 Implement vehicle management
+    - Display list of saved vehicles
+    - Add "Add Vehicle" functionality
+    - Implement edit and delete vehicle
+    - Update vehicle selection in booking flow
+    - _Requirements: 5.2, 5.3, 5.5_
+  - [ ] 13.3 Add user preferences and settings
+    - Create settings screen
+    - Add notification preferences
+    - Add language selection
+    - Add theme selection (light/dark)
+    - Store preferences in Firestore
+    - _Requirements: 5.1, 6.5_
+
+- [ ] 14. Implement Data Synchronization
+  - [ ] 14.1 Enable Firestore offline persistence
+    - Configure Firestore offline persistence
+    - Handle offline data access
+    - Implement sync indicators
+    - _Requirements: 10.3_
+  - [ ] 14.2 Implement data caching strategy
+    - Cache business listings with TTL
+    - Cache user profile data
+    - Implement cache invalidation
+    - _Requirements: 10.1, 10.2_
+  - [ ] 14.3 Handle sync conflicts
+    - Implement last-write-wins conflict resolution
+    - Add retry logic with exponential backoff
+    - Display sync errors to users
+    - _Requirements: 10.4, 10.5_
+
+- [ ] 15. Implement Error Handling and Logging
+  - [ ] 15.1 Create centralized error handling
+    - Create AppError class with error codes
+    - Implement error boundary component
+    - Add user-friendly error messages
+    - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
+  - [ ] 15.2 Set up Firebase Crashlytics
+    - Install Firebase Crashlytics SDK
+    - Configure crash reporting
+    - Add custom logging for critical errors
+    - _Requirements: 11.5_
+  - [ ] 15.3 Implement network error handling
+    - Detect network connectivity
+    - Show offline indicator
+    - Retry failed requests
+    - Queue operations for later sync
+    - _Requirements: 10.3, 10.5_
+
+- [ ] 16. Implement Performance Optimizations
+  - [ ] 16.1 Optimize image loading
+    - Implement image compression before upload
+    - Use progressive image loading
+    - Add image caching with expo-image
+    - Implement lazy loading for image galleries
+    - _Requirements: 12.5_
+  - [ ] 16.2 Optimize Firestore queries
+    - Implement pagination for large lists
+    - Use query cursors for efficient pagination
+    - Limit real-time listeners to active screens
+    - Unsubscribe from listeners on unmount
+    - _Requirements: 12.2, 12.3_
+  - [ ] 16.3 Implement app performance monitoring
+    - Set up Firebase Performance Monitoring
+    - Track screen load times
+    - Monitor network request performance
+    - Identify and fix performance bottlenecks
+    - _Requirements: 12.1, 12.2, 12.3_
+
+- [ ] 17. Implement Security Measures
+  - [ ] 17.1 Enforce password requirements
+    - Add password strength validation
+    - Require minimum 8 characters with uppercase and number
+    - Display password strength indicator
+    - _Requirements: 11.2_
+  - [ ] 17.2 Implement input sanitization
+    - Sanitize all user inputs before storing
+    - Prevent XSS and injection attacks
+    - Validate data types and formats
+    - _Requirements: 11.4_
+  - [ ] 17.3 Set up Firebase App Check
+    - Configure App Check for iOS and Android
+    - Protect backend resources from abuse
+    - Monitor App Check metrics
+    - _Requirements: 11.2_
+
+- [ ] 18. Create Business Owner Dashboard
+  - [ ] 18.1 Create business owner authentication flow
+    - Add role selection during registration
+    - Implement business owner verification
+    - Create separate dashboard navigation
+    - _Requirements: 9.1_
+  - [ ] 18.2 Build business management screens
+    - Create business profile editor
+    - Add service management (add, edit, delete services)
+    - Implement operating hours editor
+    - Add business image gallery management
+    - _Requirements: 9.2_
+  - [ ] 18.3 Build booking management for business owners
+    - Display incoming bookings in real-time
+    - Allow business owners to accept/reject bookings
+    - Implement booking status updates
+    - Add booking completion workflow
+    - _Requirements: 9.1, 9.3, 9.4_
+  - [ ] 18.4 Implement business owner notifications
+    - Send push notifications for new bookings
+    - Send notifications for booking cancellations
+    - Add notification sound and badge
+    - _Requirements: 9.3_
+
+- [ ] 19. Testing and Quality Assurance
+  - [ ]\* 19.1 Write unit tests for services
+    - Test authService functions
+    - Test firestoreService functions
+    - Test paystackService functions
+    - Test utility functions
+    - _Requirements: All_
+  - [ ]\* 19.2 Write integration tests
+    - Test authentication flow
+    - Test booking creation flow
+    - Test payment processing
+    - Test notification delivery
+    - _Requirements: All_
+  - [ ]\* 19.3 Perform end-to-end testing
+    - Test complete user journey from registration to booking
+    - Test business owner workflows
+    - Test error scenarios and edge cases
+    - Test offline functionality
+    - _Requirements: All_
+  - [ ] 19.4 Conduct security testing
+    - Test Firestore security rules
+    - Test authentication vulnerabilities
+    - Test payment security
+    - Perform penetration testing
+    - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
+
+- [ ] 20. Deployment and Launch
+  - [ ] 20.1 Set up staging environment
+    - Create Firebase staging project
+    - Deploy Cloud Functions to staging
+    - Configure Paystack test mode
+    - Test all features in staging
+    - _Requirements: All_
+  - [ ] 20.2 Prepare production environment
+    - Create Firebase production project
+    - Deploy Cloud Functions to production
+    - Configure Paystack live mode
+    - Set up monitoring and alerts
+    - _Requirements: All_
+  - [ ] 20.3 Build and submit iOS app
+    - Configure app signing and provisioning
+    - Build production iOS app
+    - Submit to Apple App Store
+    - Respond to App Store review feedback
+    - _Requirements: All_
+  - [ ] 20.4 Build and submit Android app
+    - Configure app signing with keystore
+    - Build production Android app (AAB)
+    - Submit to Google Play Store
+    - Respond to Play Store review feedback
+    - _Requirements: All_
+  - [ ] 20.5 Create app launch plan
+    - Prepare marketing materials
+    - Set up customer support channels
+    - Create user documentation
+    - Plan soft launch with beta users
+    - Monitor launch metrics and user feedback
+    - _Requirements: All_

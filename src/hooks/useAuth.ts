@@ -24,6 +24,9 @@ interface UseAuthReturn {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
+  updateProfile: (
+    updates: Partial<Omit<UserProfile, 'id' | 'createdAt' | 'updatedAt'>>
+  ) => Promise<void>;
 
   // Utilities
   clearError: () => void;
@@ -122,6 +125,7 @@ export const useAuth = (): UseAuthReturn => {
     logout,
     resetPassword,
     updatePassword,
+    updateProfile: authContext.updateProfile,
 
     // Utilities
     clearError,

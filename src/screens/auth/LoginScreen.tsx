@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   Alert,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -20,6 +20,7 @@ import {
   ThemedButton,
   HelperText,
 } from '@/components/ui';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Import types and theme
 import { AuthStackParamList } from '@/types';
@@ -138,11 +139,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   // Handle input changes
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
 
     // Clear general error when user starts typing
     if (errors.general) {
-      setErrors((prev) => ({ ...prev, general: undefined }));
+      setErrors(prev => ({ ...prev, general: undefined }));
     }
 
     // Real-time validation with debounce
@@ -160,10 +161,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     try {
       // Mock login - replace with actual Firebase auth
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Simulate success
-      console.log('Login successful:', formData.email);
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Navigate to main app
       // navigation.navigate('Main');
@@ -198,7 +196,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps='handled'
         >
           <Animated.View
             style={[
@@ -214,13 +212,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               <Image
                 source={require('../../../assets/logo.png')}
                 style={styles.logo}
-                resizeMode="contain"
+                resizeMode='contain'
               />
-              <ThemedText variant="h2" style={styles.title}>
+              <ThemedText variant='h2' style={styles.title}>
                 Welcome Back
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={[styles.subtitle, { color: theme.colors.gray['500'] }]}
               >
                 Sign in to your account to continue
@@ -232,7 +230,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               {/* General Error */}
               {errors.general && (
                 <HelperText
-                  type="error"
+                  type='error'
                   text={errors.general}
                   style={styles.generalError}
                 />
@@ -241,50 +239,68 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               {/* Email Input */}
               <View style={styles.inputContainer}>
                 <ThemedTextInput
-                  label="Email Address"
-                  placeholder="Enter your email"
+                  label='Email Address'
+                  placeholder='Enter your email address'
                   value={formData.email}
-                  onChangeText={(value) => handleInputChange('email', value)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="next"
+                  onChangeText={value => handleInputChange('email', value)}
+                  keyboardType='email-address'
+                  autoCapitalize='none'
+                  autoComplete='email'
+                  returnKeyType='next'
                   onSubmitEditing={() => {
                     /* Focus next field */
                   }}
                   errorText={errors.email}
+                  leftIcon={
+                    <MaterialCommunityIcons
+                      name='email-outline'
+                      size={20}
+                      color={theme.colors.gray['500']}
+                    />
+                  }
                 />
                 {errors.email && (
-                  <HelperText type="error" text={errors.email} />
+                  <HelperText type='error' text={errors.email} />
                 )}
               </View>
 
               {/* Password Input */}
               <View style={styles.inputContainer}>
                 <ThemedTextInput
-                  label="Password"
-                  placeholder="Enter your password"
+                  label='Password'
+                  placeholder='Enter your password'
                   value={formData.password}
-                  onChangeText={(value) => handleInputChange('password', value)}
+                  onChangeText={value => handleInputChange('password', value)}
                   secureTextEntry={!showPassword}
-                  autoComplete="password"
-                  returnKeyType="done"
+                  autoComplete='password'
+                  returnKeyType='done'
                   onSubmitEditing={handleLogin}
                   errorText={errors.password}
+                  leftIcon={
+                    <MaterialCommunityIcons
+                      name='lock'
+                      size={20}
+                      color={theme.colors.gray['500']}
+                    />
+                  }
                   rightIcon={
-                    <ThemedText>{showPassword ? '👁️' : '🙈'}</ThemedText>
+                    <MaterialCommunityIcons
+                      name={showPassword ? 'eye-off' : 'eye'}
+                      size={20}
+                      color={theme.colors.gray['500']}
+                    />
                   }
                   onRightIconPress={() => setShowPassword(!showPassword)}
                 />
                 {errors.password && (
-                  <HelperText type="error" text={errors.password} />
+                  <HelperText type='error' text={errors.password} />
                 )}
               </View>
 
               {/* Forgot Password */}
               <View style={styles.forgotPasswordContainer}>
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={[
                     styles.forgotPassword,
                     { color: theme.colors.primary['500'] },
@@ -297,9 +313,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
               {/* Login Button */}
               <ThemedButton
-                variant="primary"
-                size="lg"
-                title="Sign In"
+                variant='primary'
+                size='lg'
+                title='Sign In'
                 onPress={handleLogin}
                 loading={isLoading}
                 disabled={isLoading}
@@ -315,7 +331,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   ]}
                 />
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={[
                     styles.dividerText,
                     { color: theme.colors.gray['500'] },
@@ -334,24 +350,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               {/* Social Login Buttons */}
               <View style={styles.socialContainer}>
                 <ThemedButton
-                  variant="outline"
-                  size="md"
-                  title="Google"
+                  variant='outline'
+                  size='md'
+                  title='Google'
                   onPress={() => handleSocialLogin('google')}
                   style={styles.socialButton}
                   icon={<ThemedText>🔍</ThemedText>}
-                  iconPosition="left"
+                  iconPosition='left'
                 />
 
                 {Platform.OS === 'ios' && (
                   <ThemedButton
-                    variant="outline"
-                    size="md"
-                    title="Apple"
+                    variant='outline'
+                    size='md'
+                    title='Apple'
                     onPress={() => handleSocialLogin('apple')}
                     style={styles.socialButton}
                     icon={<ThemedText>🍎</ThemedText>}
-                    iconPosition="left"
+                    iconPosition='left'
                   />
                 )}
               </View>
@@ -360,12 +376,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             {/* Footer */}
             <View style={styles.footer}>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={{ color: theme.colors.gray['500'] }}
               >
                 Don't have an account?{' '}
                 <ThemedText
-                  variant="body"
+                  variant='body'
                   style={[
                     styles.footerLink,
                     { color: theme.colors.primary['500'] },

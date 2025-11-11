@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Alert,
   Linking,
+  TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 
 // Import enhanced components
 import { ThemedText, ThemedButton, ThemedCard } from '@/components/ui';
 import { Header } from '@/components/navigation';
+import { formatCurrency } from '@/utils';
 
 // Import types and theme
 import {
@@ -102,7 +104,7 @@ const BookingTimeline: React.FC<{ booking: BookingDetails }> = ({
             >
               {step.completed && (
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={{ color: theme.colors.gray['50'] }}
                 >
                   ✓
@@ -124,7 +126,7 @@ const BookingTimeline: React.FC<{ booking: BookingDetails }> = ({
           </View>
           <View style={styles.timelineRight}>
             <ThemedText
-              variant="body"
+              variant='body'
               style={{
                 color: step.completed
                   ? theme.colors.text
@@ -165,7 +167,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
       style={[styles.statusBadge, { backgroundColor: getStatusColor(status) }]}
     >
       <ThemedText
-        variant="caption"
+        variant='caption'
         style={[styles.statusText, { color: theme.colors.gray['50'] }]}
       >
         {status.toUpperCase()}
@@ -199,14 +201,20 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
     updatedAt: new Date(),
     business: {
       id: '1',
+      ownerId: '1',
       name: 'Quick Wash Express',
       description: 'Fast and reliable car wash service',
       address: '123 Main St, City, State 12345',
+      location: { latitude: 37.7749, longitude: -122.4194 },
       phone: '+1 (555) 123-4567',
       email: 'info@quickwash.com',
-      ownerId: '1',
-      services: [],
+      imageUrl: '',
+      images: [],
+      rating: 4.5,
+      reviewCount: 10,
       operatingHours: {},
+      services: [],
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -236,7 +244,7 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
 
       try {
         // Simulate API call with mock data
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setBooking(mockBookingDetails);
       } catch (error) {
         console.error('Error loading booking details:', error);
@@ -266,9 +274,9 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
           onPress: async () => {
             try {
               // Mock cancel booking - replace with actual API call
-              await new Promise((resolve) => setTimeout(resolve, 1000));
+              await new Promise(resolve => setTimeout(resolve, 1000));
 
-              setBooking((prev) =>
+              setBooking(prev =>
                 prev ? { ...prev, status: 'cancelled' } : null
               );
               Alert.alert('Success', 'Booking cancelled successfully');
@@ -329,10 +337,10 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Header title="Booking Details" />
+        <Header title='Booking Details' />
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Loading booking details...
@@ -347,10 +355,10 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
       <SafeAreaView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
       >
-        <Header title="Booking Details" />
+        <Header title='Booking Details' />
         <View style={styles.loadingContainer}>
           <ThemedText
-            variant="body"
+            variant='body'
             style={{ color: theme.colors.gray['500'] }}
           >
             Booking not found
@@ -364,18 +372,18 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Header title="Booking Details" />
+      <Header title='Booking Details' />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header Section */}
         <ThemedCard style={styles.headerCard}>
           <View style={styles.headerContent}>
             <View style={styles.headerLeft}>
-              <ThemedText variant="h4">
+              <ThemedText variant='h4'>
                 Booking #{booking.id.slice(-6)}
               </ThemedText>
               <ThemedText
-                variant="caption"
+                variant='caption'
                 style={{ color: theme.colors.gray['500'] }}
               >
                 Created {booking.createdAt.toLocaleDateString()}
@@ -387,7 +395,7 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
 
         {/* Timeline Section */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Booking Progress
           </ThemedText>
           <BookingTimeline booking={booking} />
@@ -395,15 +403,15 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
 
         {/* Service Details */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Service Details
           </ThemedText>
           <View style={styles.serviceDetails}>
-            <ThemedText variant="bodyLarge" style={styles.serviceName}>
+            <ThemedText variant='bodyLarge' style={styles.serviceName}>
               {booking.service?.name}
             </ThemedText>
             <ThemedText
-              variant="body"
+              variant='body'
               style={[
                 styles.serviceDescription,
                 { color: theme.colors.gray['600'] },
@@ -414,24 +422,24 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
             <View style={styles.serviceInfo}>
               <View style={styles.serviceInfoItem}>
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={{ color: theme.colors.gray['500'] }}
                 >
                   Duration
                 </ThemedText>
-                <ThemedText variant="body">
+                <ThemedText variant='body'>
                   {booking.service?.duration} minutes
                 </ThemedText>
               </View>
               <View style={styles.serviceInfoItem}>
                 <ThemedText
-                  variant="caption"
+                  variant='caption'
                   style={{ color: theme.colors.gray['500'] }}
                 >
                   Price
                 </ThemedText>
-                <ThemedText variant="bodyLarge" style={{ fontWeight: '600' }}>
-                  ${booking.totalAmount.toFixed(2)}
+                <ThemedText variant='bodyLarge' style={{ fontWeight: '600' }}>
+                  {formatCurrency(booking.totalAmount)}
                 </ThemedText>
               </View>
             </View>
@@ -440,11 +448,11 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
 
         {/* Schedule Details */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Schedule
           </ThemedText>
           <View style={styles.scheduleDetails}>
-            <ThemedText variant="bodyLarge" style={styles.scheduleDate}>
+            <ThemedText variant='bodyLarge' style={styles.scheduleDate}>
               {booking.scheduledDate.toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
@@ -453,7 +461,7 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
               })}
             </ThemedText>
             <ThemedText
-              variant="body"
+              variant='body'
               style={{ color: theme.colors.gray['600'] }}
             >
               {booking.scheduledDate.toLocaleTimeString('en-US', {
@@ -468,15 +476,15 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
         {/* Business Details */}
         {booking.business && (
           <ThemedCard style={styles.section}>
-            <ThemedText variant="h4" style={styles.sectionTitle}>
+            <ThemedText variant='h4' style={styles.sectionTitle}>
               Business
             </ThemedText>
             <View style={styles.businessDetails}>
-              <ThemedText variant="bodyLarge" style={styles.businessName}>
+              <ThemedText variant='bodyLarge' style={styles.businessName}>
                 {booking.business.name}
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={[
                   styles.businessAddress,
                   { color: theme.colors.gray['600'] },
@@ -485,13 +493,12 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
                 {booking.business.address}
               </ThemedText>
               <ThemedButton
-                variant="outline"
-                size="sm"
+                title='Call Business'
+                variant='outline'
+                size='sm'
                 onPress={handleContactBusiness}
                 style={styles.contactButton}
-              >
-                Call Business
-              </ThemedButton>
+              />
             </View>
           </ThemedCard>
         )}
@@ -499,15 +506,15 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
         {/* Washer Details */}
         {booking.washer && (
           <ThemedCard style={styles.section}>
-            <ThemedText variant="h4" style={styles.sectionTitle}>
+            <ThemedText variant='h4' style={styles.sectionTitle}>
               Assigned Washer
             </ThemedText>
             <View style={styles.washerDetails}>
-              <ThemedText variant="bodyLarge" style={styles.washerName}>
+              <ThemedText variant='bodyLarge' style={styles.washerName}>
                 {booking.washer.name}
               </ThemedText>
               <ThemedText
-                variant="body"
+                variant='body'
                 style={[
                   styles.washerPhone,
                   { color: theme.colors.gray['600'] },
@@ -516,13 +523,12 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
                 {booking.washer.phone}
               </ThemedText>
               <ThemedButton
-                variant="outline"
-                size="sm"
+                title='Call Washer'
+                variant='outline'
+                size='sm'
                 onPress={handleContactWasher}
                 style={styles.contactButton}
-              >
-                Call Washer
-              </ThemedButton>
+              />
             </View>
           </ThemedCard>
         )}
@@ -530,11 +536,11 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
         {/* Notes */}
         {booking.notes && (
           <ThemedCard style={styles.section}>
-            <ThemedText variant="h4" style={styles.sectionTitle}>
+            <ThemedText variant='h4' style={styles.sectionTitle}>
               Special Instructions
             </ThemedText>
             <ThemedText
-              variant="body"
+              variant='body'
               style={[styles.notes, { color: theme.colors.gray['600'] }]}
             >
               {booking.notes}
@@ -547,27 +553,24 @@ const BookingDetailScreen: React.FC<BookingDetailScreenProps> = ({
           <View style={styles.actionButtons}>
             {booking.status === 'confirmed' && (
               <ThemedButton
-                variant="outline"
-                size="lg"
+                title='Reschedule'
+                variant='outline'
+                size='lg'
                 onPress={handleRescheduleBooking}
                 style={styles.actionButton}
-              >
-                Reschedule
-              </ThemedButton>
+              />
             )}
-            <ThemedButton
-              variant="outline"
-              size="lg"
+            <TouchableOpacity
               onPress={handleCancelBooking}
               style={[
-                styles.actionButton,
+                styles.actionButtonTouchable,
                 { borderColor: theme.colors.error['500'] },
               ]}
             >
               <ThemedText style={{ color: theme.colors.error['500'] }}>
                 Cancel Booking
               </ThemedText>
-            </ThemedButton>
+            </TouchableOpacity>
           </View>
         ) : null}
       </ScrollView>
@@ -699,6 +702,15 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     width: '100%',
+  },
+  actionButtonTouchable: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

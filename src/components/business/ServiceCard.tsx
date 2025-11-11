@@ -45,9 +45,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   const [imageError, setImageError] = useState(false);
 
   const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
     }).format(price);
   };
 
@@ -102,14 +102,14 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         <View style={imageContainerStyle}>
           <View style={placeholderStyle}>
             <MaterialCommunityIcons
-              name="car-wash"
+              name='car-wash'
               size={48}
               color={theme.colors.gray['400']}
             />
             <ThemedText
-              variant="caption"
-              colorVariant="gray"
-              colorShade="500"
+              variant='caption'
+              colorVariant='gray'
+              colorShade='500'
               style={{ marginTop: theme.spacing.xs }}
             >
               No Image
@@ -126,7 +126,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           style={imageStyle}
           onLoad={handleImageLoad}
           onError={handleImageError}
-          resizeMode="cover"
+          resizeMode='cover'
         />
         {imageLoading && (
           <View
@@ -142,7 +142,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
             ]}
           >
             <ActivityIndicator
-              size="large"
+              size='large'
               color={theme.colors.primary['500']}
             />
           </View>
@@ -164,7 +164,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           }}
         >
           <ThemedText
-            variant="caption"
+            variant='caption'
             style={{
               color: '#FFFFFF',
               fontWeight: '600',
@@ -178,7 +178,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   };
 
   const renderContent = () => (
-    <CardContent padding="md">
+    <CardContent padding='md'>
       {renderImage()}
 
       <View style={{ marginBottom: theme.spacing.sm }}>
@@ -191,9 +191,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         </ThemedText>
 
         <ThemedText
-          variant="body"
-          colorVariant="gray"
-          colorShade="600"
+          variant='body'
+          colorVariant='gray'
+          colorShade='600'
           numberOfLines={variant === 'compact' ? 2 : 3}
           style={{ marginBottom: theme.spacing.sm }}
         >
@@ -209,8 +209,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           }}
         >
           <ThemedText
-            variant="h4"
-            colorVariant="primary"
+            variant='h4'
+            colorVariant='primary'
             style={{ fontWeight: '700' }}
           >
             {formatPrice(service.price)}
@@ -218,14 +218,14 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
 
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <MaterialCommunityIcons
-              name="clock-outline"
+              name='clock-outline'
               size={16}
               color={theme.colors.gray['500']}
             />
             <ThemedText
-              variant="caption"
-              colorVariant="gray"
-              colorShade="600"
+              variant='caption'
+              colorVariant='gray'
+              colorShade='600'
               style={{ marginLeft: theme.spacing.xs }}
             >
               {formatDuration(service.duration)}
@@ -245,9 +245,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
             }}
           >
             <ThemedText
-              variant="caption"
-              colorVariant="primary"
-              colorShade="700"
+              variant='caption'
+              colorVariant='primary'
+              colorShade='700'
               style={{ fontWeight: '600' }}
             >
               {service.category}
@@ -265,8 +265,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           }}
         >
           <ThemedButton
-            title="Book Now"
-            variant="primary"
+            title='Book Now'
+            variant='primary'
             size={variant === 'compact' ? 'sm' : 'md'}
             onPress={onBookPress}
             disabled={service.isAvailable === false}
@@ -281,7 +281,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
                 padding: theme.spacing.sm,
                 marginRight: theme.spacing.xs,
               }}
-              accessibilityRole="button"
+              accessibilityRole='button'
               accessibilityLabel={
                 isFavorite ? 'Remove from favorites' : 'Add to favorites'
               }
@@ -302,11 +302,11 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
               style={{
                 padding: theme.spacing.sm,
               }}
-              accessibilityRole="button"
+              accessibilityRole='button'
               accessibilityLabel={`Share ${service.name} service`}
             >
               <MaterialCommunityIcons
-                name="share-variant"
+                name='share-variant'
                 size={24}
                 color={theme.colors.gray['500']}
               />
@@ -317,10 +317,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
     </CardContent>
   );
 
-  const cardStyle: ViewStyle & { cursor?: string } = {
+  const cardStyle: ViewStyle = {
     marginBottom: theme.spacing.md,
     ...(Platform.OS === 'web' && {
-      cursor: onPress ? 'pointer' : 'default',
+      cursor: (onPress ? 'pointer' : 'default') as any,
     }),
   };
 
@@ -329,16 +329,11 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.8}
-        accessibilityRole="button"
+        accessibilityRole='button'
         accessibilityLabel={`View details for ${service.name}`}
-        accessibilityHint="Double tap to view service details"
+        accessibilityHint='Double tap to view service details'
       >
-        <ThemedCard
-          variant="elevated"
-          padding="none"
-          style={cardStyle}
-          hoverable={true}
-        >
+        <ThemedCard variant='elevated' style={cardStyle} hoverable={true}>
           {renderContent()}
         </ThemedCard>
       </TouchableOpacity>
@@ -346,7 +341,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   }
 
   return (
-    <ThemedCard variant="elevated" padding="none" style={cardStyle}>
+    <ThemedCard variant='elevated' style={cardStyle}>
       {renderContent()}
     </ThemedCard>
   );

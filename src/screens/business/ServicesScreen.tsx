@@ -22,9 +22,7 @@ export const ServicesScreen: React.FC = () => {
   useEffect(() => {
     let filtered = services;
 
-    if (businessId) {
-      filtered = filtered.filter(service => service.businessId === businessId);
-    }
+    // Services are already filtered by business when loaded
 
     if (category) {
       filtered = filtered.filter(service => service.category === category);
@@ -42,16 +40,17 @@ export const ServicesScreen: React.FC = () => {
   }, [services, businessId, category, searchQuery]);
 
   const renderServiceItem = ({ item }: { item: Service }) => (
-    <ServiceCard
-      service={item}
-      onPress={() => {
-        // Navigate to service booking
-      }}
-      onBookPress={() => {
-        // Navigate to booking screen
-      }}
-      style={styles.serviceCard}
-    />
+    <View style={styles.serviceCard}>
+      <ServiceCard
+        service={item}
+        onPress={() => {
+          // Navigate to service booking
+        }}
+        onBookPress={() => {
+          // Navigate to booking screen
+        }}
+      />
+    </View>
   );
 
   const getScreenTitle = () => {
@@ -62,7 +61,11 @@ export const ServicesScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Header title={getScreenTitle()} showBack />
+      <Header
+        title={getScreenTitle()}
+        showBackButton={true}
+        onBackPress={() => {}}
+      />
 
       <View style={styles.searchContainer}>
         <SearchBar

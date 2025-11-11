@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Switch,
-  Alert,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, Switch, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 
@@ -71,14 +65,14 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
     key: keyof NotificationSettings,
     value: boolean
   ) => {
-    setNotifications((prev) => ({ ...prev, [key]: value }));
+    setNotifications(prev => ({ ...prev, [key]: value }));
     // Auto-save settings
     saveSettings();
   };
 
   // Handle app setting change
   const handleAppSettingChange = (key: keyof AppSettings, value: boolean) => {
-    setAppSettings((prev) => ({ ...prev, [key]: value }));
+    setAppSettings(prev => ({ ...prev, [key]: value }));
     // Auto-save settings
     saveSettings();
   };
@@ -87,7 +81,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
   const saveSettings = async () => {
     try {
       // Mock save settings - replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500));
       console.log('Settings saved');
     } catch (error) {
       console.error('Error saving settings:', error);
@@ -109,7 +103,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
             setIsLoading(true);
             try {
               // Mock clear cache - replace with actual implementation
-              await new Promise((resolve) => setTimeout(resolve, 2000));
+              await new Promise(resolve => setTimeout(resolve, 2000));
               Alert.alert('Success', 'Cache cleared successfully');
             } catch (error) {
               console.error('Error clearing cache:', error);
@@ -163,11 +157,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
   ) => (
     <View style={styles.settingItem}>
       <View style={styles.settingText}>
-        <ThemedText variant="bodyLarge" style={styles.settingTitle}>
+        <ThemedText variant='bodyLarge' style={styles.settingTitle}>
           {title}
         </ThemedText>
         <ThemedText
-          variant="caption"
+          variant='caption'
           style={[styles.settingSubtitle, { color: theme.colors.gray['500'] }]}
         >
           {subtitle}
@@ -191,12 +185,12 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Header title="Settings" />
+      <Header title='Settings' />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Notifications Section */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Notifications
           </ThemedText>
 
@@ -204,34 +198,34 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
             'Booking Reminders',
             'Get notified about upcoming appointments',
             notifications.bookingReminders,
-            (value) => handleNotificationChange('bookingReminders', value)
+            value => handleNotificationChange('bookingReminders', value)
           )}
 
           {renderSettingItem(
             'Promotional Offers',
             'Receive special deals and discounts',
             notifications.promotionalOffers,
-            (value) => handleNotificationChange('promotionalOffers', value)
+            value => handleNotificationChange('promotionalOffers', value)
           )}
 
           {renderSettingItem(
             'Service Updates',
             'Updates about your bookings and services',
             notifications.serviceUpdates,
-            (value) => handleNotificationChange('serviceUpdates', value)
+            value => handleNotificationChange('serviceUpdates', value)
           )}
 
           {renderSettingItem(
             'Email Notifications',
             'Receive notifications via email',
             notifications.emailNotifications,
-            (value) => handleNotificationChange('emailNotifications', value)
+            value => handleNotificationChange('emailNotifications', value)
           )}
         </ThemedCard>
 
         {/* App Preferences Section */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             App Preferences
           </ThemedText>
 
@@ -239,44 +233,44 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
             'Dark Mode',
             'Use dark theme throughout the app',
             appSettings.darkMode,
-            (value) => handleAppSettingChange('darkMode', value)
+            value => handleAppSettingChange('darkMode', value)
           )}
 
           {renderSettingItem(
             'Auto Location',
             'Automatically detect your location',
             appSettings.autoLocation,
-            (value) => handleAppSettingChange('autoLocation', value)
+            value => handleAppSettingChange('autoLocation', value)
           )}
 
           {renderSettingItem(
             'Save Payment Methods',
             'Securely save payment information',
             appSettings.savePaymentMethods,
-            (value) => handleAppSettingChange('savePaymentMethods', value)
+            value => handleAppSettingChange('savePaymentMethods', value)
           )}
 
           {renderSettingItem(
             'Biometric Authentication',
             'Use fingerprint or face ID for security',
             appSettings.biometricAuth,
-            (value) => handleAppSettingChange('biometricAuth', value)
+            value => handleAppSettingChange('biometricAuth', value)
           )}
         </ThemedCard>
 
         {/* Data & Storage Section */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             Data & Storage
           </ThemedText>
 
           <View style={styles.actionItem}>
             <View style={styles.actionText}>
-              <ThemedText variant="bodyLarge" style={styles.actionTitle}>
+              <ThemedText variant='bodyLarge' style={styles.actionTitle}>
                 Clear Cache
               </ThemedText>
               <ThemedText
-                variant="caption"
+                variant='caption'
                 style={[
                   styles.actionSubtitle,
                   { color: theme.colors.gray['500'] },
@@ -286,9 +280,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
               </ThemedText>
             </View>
             <ThemedButton
-              variant="outline"
-              size="sm"
-              title="Clear"
+              variant='outline'
+              size='sm'
+              title='Clear'
               onPress={handleClearCache}
               loading={isLoading}
               disabled={isLoading}
@@ -298,16 +292,16 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
         {/* About Section */}
         <ThemedCard style={styles.section}>
-          <ThemedText variant="h4" style={styles.sectionTitle}>
+          <ThemedText variant='h4' style={styles.sectionTitle}>
             About
           </ThemedText>
 
           <View style={styles.infoItem}>
-            <ThemedText variant="body" style={styles.infoLabel}>
+            <ThemedText variant='body' style={styles.infoLabel}>
               App Version
             </ThemedText>
             <ThemedText
-              variant="body"
+              variant='body'
               style={[styles.infoValue, { color: theme.colors.gray['600'] }]}
             >
               1.0.0
@@ -315,11 +309,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           </View>
 
           <View style={styles.infoItem}>
-            <ThemedText variant="body" style={styles.infoLabel}>
+            <ThemedText variant='body' style={styles.infoLabel}>
               Build Number
             </ThemedText>
             <ThemedText
-              variant="body"
+              variant='body'
               style={[styles.infoValue, { color: theme.colors.gray['600'] }]}
             >
               100
@@ -328,7 +322,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
           <View style={styles.linkItems}>
             <ThemedText
-              variant="body"
+              variant='body'
               style={[styles.linkItem, { color: theme.colors.primary['500'] }]}
               onPress={() =>
                 Alert.alert(
@@ -341,7 +335,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
             </ThemedText>
 
             <ThemedText
-              variant="body"
+              variant='body'
               style={[styles.linkItem, { color: theme.colors.primary['500'] }]}
               onPress={() =>
                 Alert.alert(
@@ -354,7 +348,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
             </ThemedText>
 
             <ThemedText
-              variant="body"
+              variant='body'
               style={[styles.linkItem, { color: theme.colors.primary['500'] }]}
               onPress={() =>
                 Alert.alert(
@@ -371,9 +365,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
         {/* Reset Section */}
         <View style={styles.resetSection}>
           <ThemedButton
-            variant="outline"
-            size="lg"
-            title="Reset All Settings"
+            variant='outline'
+            size='lg'
+            title='Reset All Settings'
             onPress={handleResetSettings}
             style={[
               styles.resetButton,

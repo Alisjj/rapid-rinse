@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { defaultScreenOptions, modalScreenOptions } from './animations';
 import type { HomeStackParamList } from '../types';
+import { BookServiceScreen } from '../screens/booking';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -9,14 +10,14 @@ export function HomeStack() {
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions}>
       <Stack.Screen
-        name="HomeScreen"
+        name='HomeScreen'
         component={HomeScreen}
         options={{
           title: 'Home',
         }}
       />
       <Stack.Screen
-        name="BusinessDetails"
+        name='BusinessDetails'
         component={BusinessDetailsScreen}
         options={{
           headerShown: true,
@@ -26,8 +27,8 @@ export function HomeStack() {
         }}
       />
       <Stack.Screen
-        name="ServiceBooking"
-        component={ServiceBookingScreen}
+        name='BookService'
+        component={BookServiceScreen}
         options={{
           ...modalScreenOptions,
           title: 'Book Service',
@@ -36,7 +37,7 @@ export function HomeStack() {
         }}
       />
       <Stack.Screen
-        name="SearchResults"
+        name='SearchResults'
         component={SearchResultsScreen}
         options={{
           headerShown: true,

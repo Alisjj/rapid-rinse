@@ -3,10 +3,10 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/theme';
 import {
@@ -15,6 +15,7 @@ import {
   ThemedButton,
   ThemedTextInput,
 } from '@/components/ui';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Header } from '@/components/navigation';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -148,355 +149,26 @@ export default function BookService() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <Header
-        title='Book Service'
-        showBackButton
-        onBackPress={() => router.back()}
-      />
+    <ProtectedRoute>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <Header
+          title='Book Service'
+          showBackButton
+          onBackPress={() => router.back()}
+        />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Service Summary */}
-        <ThemedCard variant='elevated' style={styles.card}>
-          <ThemedText variant='h3' style={{ marginBottom: 8 }}>
-            {serviceName}
-          </ThemedText>
-          <ThemedText variant='body' colorVariant='gray' colorShade='600'>
-            {businessName}
-          </ThemedText>
-          <View style={styles.priceRow}>
-            <ThemedText
-              variant='h4'
-              colorVariant='primary'
-              style={{ fontWeight: '700' }}
-            >
-              ${servicePrice}
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {/* Service Summary */}
+          <ThemedCard variant='elevated' style={styles.card}>
+            <ThemedText variant='h3' style={{ marginBottom: 8 }}>
+              {serviceName}
             </ThemedText>
-          </View>
-        </ThemedCard>
-
-        {/* Date & Time Selection */}
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Select Date & Time
-          </ThemedText>
-
-          <ThemedCard variant='elevated' style={styles.card}>
-            <View style={styles.dateTimeRow}>
-              <View style={{ flex: 1, marginRight: 8 }}>
-                <ThemedText
-                  variant='caption'
-                  colorVariant='gray'
-                  colorShade='600'
-                  style={{ marginBottom: 8 }}
-                >
-                  Date
-                </ThemedText>
-                <ThemedButton
-                  title={formatDate(selectedDate)}
-                  variant='outline'
-                  onPress={() => setShowDatePicker(true)}
-                  icon={
-                    <MaterialCommunityIcons
-                      name='calendar'
-                      size={20}
-                      color={theme.colors.primary['500']}
-                    />
-                  }
-                />
-              </View>
-              <View style={{ flex: 1, marginLeft: 8 }}>
-                <ThemedText
-                  variant='caption'
-                  colorVariant='gray'
-                  colorShade='600'
-                  style={{ marginBottom: 8 }}
-                >
-                  Time
-                </ThemedText>
-                <ThemedButton
-                  title={formatTime(selectedTime)}
-                  variant='outline'
-                  onPress={() => setShowTimePicker(true)}
-                  icon={
-                    <MaterialCommunityIcons
-                      name='clock'
-                      size={20}
-                      color={theme.colors.primary['500']}
-                    />
-                  }
-                />
-              </View>
-            </View>
-
-            {showDatePicker && (
-              <View style={styles.pickerContainer}>
-                <DateTimePicker
-                  value={selectedDate}
-                  mode='date'
-                  display='spinner'
-                  onChange={handleDateChange}
-                  minimumDate={new Date()}
-                  style={styles.picker}
-                />
-                <ThemedButton
-                  title='Done'
-                  variant='primary'
-                  size='sm'
-                  onPress={() => setShowDatePicker(false)}
-                  style={{ marginTop: 12 }}
-                />
-              </View>
-            )}
-
-            {showTimePicker && (
-              <View style={styles.pickerContainer}>
-                <DateTimePicker
-                  value={selectedTime}
-                  mode='time'
-                  display='spinner'
-                  onChange={handleTimeChange}
-                  style={styles.picker}
-                />
-                <ThemedButton
-                  title='Done'
-                  variant='primary'
-                  size='sm'
-                  onPress={() => setShowTimePicker(false)}
-                  style={{ marginTop: 12 }}
-                />
-              </View>
-            )}
-          </ThemedCard>
-        </View>
-
-        {/* Vehicle Information */}
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Select Vehicle
-          </ThemedText>
-
-          {!showAddVehicle ? (
-            <ThemedCard variant='elevated' style={styles.card}>
-              {savedVehicles.map(vehicle => (
-                <TouchableOpacity
-                  key={vehicle.id}
-                  onPress={() => setSelectedVehicleId(vehicle.id)}
-                  style={[
-                    styles.vehicleOption,
-                    selectedVehicleId === vehicle.id && {
-                      backgroundColor: theme.colors.primary['50'],
-                      borderColor: theme.colors.primary['500'],
-                    },
-                  ]}
-                >
-                  <MaterialCommunityIcons
-                    name='car'
-                    size={32}
-                    color={
-                      selectedVehicleId === vehicle.id
-                        ? theme.colors.primary['500']
-                        : theme.colors.gray['400']
-                    }
-                  />
-                  <View style={{ marginLeft: 12, flex: 1 }}>
-                    <ThemedText variant='body' style={{ fontWeight: '600' }}>
-                      {vehicle.year} {vehicle.make} {vehicle.model}
-                    </ThemedText>
-                    <ThemedText
-                      variant='caption'
-                      colorVariant='gray'
-                      colorShade='600'
-                    >
-                      {vehicle.color} • {vehicle.licensePlate}
-                    </ThemedText>
-                  </View>
-                  {selectedVehicleId === vehicle.id && (
-                    <MaterialCommunityIcons
-                      name='check-circle'
-                      size={24}
-                      color={theme.colors.primary['500']}
-                    />
-                  )}
-                </TouchableOpacity>
-              ))}
-
-              <ThemedButton
-                title='Add New Vehicle'
-                variant='ghost'
-                onPress={() => setShowAddVehicle(true)}
-                icon={
-                  <MaterialCommunityIcons
-                    name='plus'
-                    size={20}
-                    color={theme.colors.primary['500']}
-                  />
-                }
-                style={{ marginTop: 12 }}
-              />
-            </ThemedCard>
-          ) : (
-            <ThemedCard variant='elevated' style={styles.card}>
-              <View style={styles.formRow}>
-                <View style={styles.formField}>
-                  <ThemedText
-                    variant='caption'
-                    colorVariant='gray'
-                    colorShade='600'
-                    style={{ marginBottom: 4 }}
-                  >
-                    Make *
-                  </ThemedText>
-                  <ThemedTextInput
-                    placeholder='Toyota'
-                    value={vehicleMake}
-                    onChangeText={setVehicleMake}
-                  />
-                </View>
-                <View style={styles.formField}>
-                  <ThemedText
-                    variant='caption'
-                    colorVariant='gray'
-                    colorShade='600'
-                    style={{ marginBottom: 4 }}
-                  >
-                    Model *
-                  </ThemedText>
-                  <ThemedTextInput
-                    placeholder='Camry'
-                    value={vehicleModel}
-                    onChangeText={setVehicleModel}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={styles.formField}>
-                  <ThemedText
-                    variant='caption'
-                    colorVariant='gray'
-                    colorShade='600'
-                    style={{ marginBottom: 4 }}
-                  >
-                    Year *
-                  </ThemedText>
-                  <ThemedTextInput
-                    placeholder='2020'
-                    value={vehicleYear}
-                    onChangeText={setVehicleYear}
-                    keyboardType='numeric'
-                  />
-                </View>
-                <View style={styles.formField}>
-                  <ThemedText
-                    variant='caption'
-                    colorVariant='gray'
-                    colorShade='600'
-                    style={{ marginBottom: 4 }}
-                  >
-                    Color
-                  </ThemedText>
-                  <ThemedTextInput
-                    placeholder='Silver'
-                    value={vehicleColor}
-                    onChangeText={setVehicleColor}
-                  />
-                </View>
-              </View>
-
-              <View style={{ marginTop: 12 }}>
-                <ThemedText
-                  variant='caption'
-                  colorVariant='gray'
-                  colorShade='600'
-                  style={{ marginBottom: 4 }}
-                >
-                  License Plate *
-                </ThemedText>
-                <ThemedTextInput
-                  placeholder='ABC-1234'
-                  value={licensePlate}
-                  onChangeText={setLicensePlate}
-                  autoCapitalize='characters'
-                />
-              </View>
-
-              <ThemedButton
-                title='Use Saved Vehicle'
-                variant='ghost'
-                onPress={() => {
-                  setShowAddVehicle(false);
-                  setSelectedVehicleId(savedVehicles[0]?.id || '');
-                }}
-                icon={
-                  <MaterialCommunityIcons
-                    name='arrow-left'
-                    size={20}
-                    color={theme.colors.primary['500']}
-                  />
-                }
-                style={{ marginTop: 12 }}
-              />
-            </ThemedCard>
-          )}
-        </View>
-
-        {/* Special Instructions */}
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Special Instructions (Optional)
-          </ThemedText>
-
-          <ThemedCard variant='elevated' style={styles.card}>
-            <ThemedTextInput
-              placeholder='Any special requests or instructions...'
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-              numberOfLines={4}
-              style={{ height: 100, textAlignVertical: 'top' }}
-            />
-          </ThemedCard>
-        </View>
-
-        {/* Booking Summary */}
-        <View style={styles.section}>
-          <ThemedText variant='h3' style={styles.sectionTitle}>
-            Booking Summary
-          </ThemedText>
-
-          <ThemedCard variant='elevated' style={styles.card}>
-            <View style={styles.summaryRow}>
-              <ThemedText variant='body' colorVariant='gray' colorShade='600'>
-                Service
-              </ThemedText>
-              <ThemedText variant='body' style={{ fontWeight: '600' }}>
-                {serviceName}
-              </ThemedText>
-            </View>
-
-            <View style={styles.summaryRow}>
-              <ThemedText variant='body' colorVariant='gray' colorShade='600'>
-                Date
-              </ThemedText>
-              <ThemedText variant='body' style={{ fontWeight: '600' }}>
-                {formatDate(selectedDate)}
-              </ThemedText>
-            </View>
-
-            <View style={styles.summaryRow}>
-              <ThemedText variant='body' colorVariant='gray' colorShade='600'>
-                Time
-              </ThemedText>
-              <ThemedText variant='body' style={{ fontWeight: '600' }}>
-                {formatTime(selectedTime)}
-              </ThemedText>
-            </View>
-
-            <View style={[styles.summaryRow, styles.totalRow]}>
-              <ThemedText variant='h4'>Total</ThemedText>
+            <ThemedText variant='body' colorVariant='gray' colorShade='600'>
+              {businessName}
+            </ThemedText>
+            <View style={styles.priceRow}>
               <ThemedText
                 variant='h4'
                 colorVariant='primary'
@@ -506,26 +178,357 @@ export default function BookService() {
               </ThemedText>
             </View>
           </ThemedCard>
-        </View>
 
-        {/* Book Button */}
-        <View style={styles.actionSection}>
-          <ThemedButton
-            title='Confirm Booking'
-            variant='primary'
-            onPress={handleBooking}
-            icon={
-              <MaterialCommunityIcons
-                name='check-circle'
-                size={20}
-                color='#FFFFFF'
+          {/* Date & Time Selection */}
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Select Date & Time
+            </ThemedText>
+
+            <ThemedCard variant='elevated' style={styles.card}>
+              <View style={styles.dateTimeRow}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <ThemedText
+                    variant='caption'
+                    colorVariant='gray'
+                    colorShade='600'
+                    style={{ marginBottom: 8 }}
+                  >
+                    Date
+                  </ThemedText>
+                  <ThemedButton
+                    title={formatDate(selectedDate)}
+                    variant='outline'
+                    onPress={() => setShowDatePicker(true)}
+                    icon={
+                      <MaterialCommunityIcons
+                        name='calendar'
+                        size={20}
+                        color={theme.colors.primary['500']}
+                      />
+                    }
+                  />
+                </View>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <ThemedText
+                    variant='caption'
+                    colorVariant='gray'
+                    colorShade='600'
+                    style={{ marginBottom: 8 }}
+                  >
+                    Time
+                  </ThemedText>
+                  <ThemedButton
+                    title={formatTime(selectedTime)}
+                    variant='outline'
+                    onPress={() => setShowTimePicker(true)}
+                    icon={
+                      <MaterialCommunityIcons
+                        name='clock'
+                        size={20}
+                        color={theme.colors.primary['500']}
+                      />
+                    }
+                  />
+                </View>
+              </View>
+
+              {showDatePicker && (
+                <View style={styles.pickerContainer}>
+                  <DateTimePicker
+                    value={selectedDate}
+                    mode='date'
+                    display='spinner'
+                    onChange={handleDateChange}
+                    minimumDate={new Date()}
+                    style={styles.picker}
+                  />
+                  <ThemedButton
+                    title='Done'
+                    variant='primary'
+                    size='sm'
+                    onPress={() => setShowDatePicker(false)}
+                    style={{ marginTop: 12 }}
+                  />
+                </View>
+              )}
+
+              {showTimePicker && (
+                <View style={styles.pickerContainer}>
+                  <DateTimePicker
+                    value={selectedTime}
+                    mode='time'
+                    display='spinner'
+                    onChange={handleTimeChange}
+                    style={styles.picker}
+                  />
+                  <ThemedButton
+                    title='Done'
+                    variant='primary'
+                    size='sm'
+                    onPress={() => setShowTimePicker(false)}
+                    style={{ marginTop: 12 }}
+                  />
+                </View>
+              )}
+            </ThemedCard>
+          </View>
+
+          {/* Vehicle Information */}
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Select Vehicle
+            </ThemedText>
+
+            {!showAddVehicle ? (
+              <ThemedCard variant='elevated' style={styles.card}>
+                {savedVehicles.map(vehicle => (
+                  <TouchableOpacity
+                    key={vehicle.id}
+                    onPress={() => setSelectedVehicleId(vehicle.id)}
+                    style={[
+                      styles.vehicleOption,
+                      selectedVehicleId === vehicle.id && {
+                        backgroundColor: theme.colors.primary['50'],
+                        borderColor: theme.colors.primary['500'],
+                      },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name='car'
+                      size={32}
+                      color={
+                        selectedVehicleId === vehicle.id
+                          ? theme.colors.primary['500']
+                          : theme.colors.gray['400']
+                      }
+                    />
+                    <View style={{ marginLeft: 12, flex: 1 }}>
+                      <ThemedText variant='body' style={{ fontWeight: '600' }}>
+                        {vehicle.year} {vehicle.make} {vehicle.model}
+                      </ThemedText>
+                      <ThemedText
+                        variant='caption'
+                        colorVariant='gray'
+                        colorShade='600'
+                      >
+                        {vehicle.color} • {vehicle.licensePlate}
+                      </ThemedText>
+                    </View>
+                    {selectedVehicleId === vehicle.id && (
+                      <MaterialCommunityIcons
+                        name='check-circle'
+                        size={24}
+                        color={theme.colors.primary['500']}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
+
+                <ThemedButton
+                  title='Add New Vehicle'
+                  variant='ghost'
+                  onPress={() => setShowAddVehicle(true)}
+                  icon={
+                    <MaterialCommunityIcons
+                      name='plus'
+                      size={20}
+                      color={theme.colors.primary['500']}
+                    />
+                  }
+                  style={{ marginTop: 12 }}
+                />
+              </ThemedCard>
+            ) : (
+              <ThemedCard variant='elevated' style={styles.card}>
+                <View style={styles.formRow}>
+                  <View style={styles.formField}>
+                    <ThemedText
+                      variant='caption'
+                      colorVariant='gray'
+                      colorShade='600'
+                      style={{ marginBottom: 4 }}
+                    >
+                      Make *
+                    </ThemedText>
+                    <ThemedTextInput
+                      placeholder='Toyota'
+                      value={vehicleMake}
+                      onChangeText={setVehicleMake}
+                    />
+                  </View>
+                  <View style={styles.formField}>
+                    <ThemedText
+                      variant='caption'
+                      colorVariant='gray'
+                      colorShade='600'
+                      style={{ marginBottom: 4 }}
+                    >
+                      Model *
+                    </ThemedText>
+                    <ThemedTextInput
+                      placeholder='Camry'
+                      value={vehicleModel}
+                      onChangeText={setVehicleModel}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.formRow}>
+                  <View style={styles.formField}>
+                    <ThemedText
+                      variant='caption'
+                      colorVariant='gray'
+                      colorShade='600'
+                      style={{ marginBottom: 4 }}
+                    >
+                      Year *
+                    </ThemedText>
+                    <ThemedTextInput
+                      placeholder='2020'
+                      value={vehicleYear}
+                      onChangeText={setVehicleYear}
+                      keyboardType='numeric'
+                    />
+                  </View>
+                  <View style={styles.formField}>
+                    <ThemedText
+                      variant='caption'
+                      colorVariant='gray'
+                      colorShade='600'
+                      style={{ marginBottom: 4 }}
+                    >
+                      Color
+                    </ThemedText>
+                    <ThemedTextInput
+                      placeholder='Silver'
+                      value={vehicleColor}
+                      onChangeText={setVehicleColor}
+                    />
+                  </View>
+                </View>
+
+                <View style={{ marginTop: 12 }}>
+                  <ThemedText
+                    variant='caption'
+                    colorVariant='gray'
+                    colorShade='600'
+                    style={{ marginBottom: 4 }}
+                  >
+                    License Plate *
+                  </ThemedText>
+                  <ThemedTextInput
+                    placeholder='ABC-1234'
+                    value={licensePlate}
+                    onChangeText={setLicensePlate}
+                    autoCapitalize='characters'
+                  />
+                </View>
+
+                <ThemedButton
+                  title='Use Saved Vehicle'
+                  variant='ghost'
+                  onPress={() => {
+                    setShowAddVehicle(false);
+                    setSelectedVehicleId(savedVehicles[0]?.id || '');
+                  }}
+                  icon={
+                    <MaterialCommunityIcons
+                      name='arrow-left'
+                      size={20}
+                      color={theme.colors.primary['500']}
+                    />
+                  }
+                  style={{ marginTop: 12 }}
+                />
+              </ThemedCard>
+            )}
+          </View>
+
+          {/* Special Instructions */}
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Special Instructions (Optional)
+            </ThemedText>
+
+            <ThemedCard variant='elevated' style={styles.card}>
+              <ThemedTextInput
+                placeholder='Any special requests or instructions...'
+                value={notes}
+                onChangeText={setNotes}
+                multiline
+                numberOfLines={4}
+                style={{ height: 100, textAlignVertical: 'top' }}
               />
-            }
-            style={{ marginBottom: 24 }}
-          />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            </ThemedCard>
+          </View>
+
+          {/* Booking Summary */}
+          <View style={styles.section}>
+            <ThemedText variant='h3' style={styles.sectionTitle}>
+              Booking Summary
+            </ThemedText>
+
+            <ThemedCard variant='elevated' style={styles.card}>
+              <View style={styles.summaryRow}>
+                <ThemedText variant='body' colorVariant='gray' colorShade='600'>
+                  Service
+                </ThemedText>
+                <ThemedText variant='body' style={{ fontWeight: '600' }}>
+                  {serviceName}
+                </ThemedText>
+              </View>
+
+              <View style={styles.summaryRow}>
+                <ThemedText variant='body' colorVariant='gray' colorShade='600'>
+                  Date
+                </ThemedText>
+                <ThemedText variant='body' style={{ fontWeight: '600' }}>
+                  {formatDate(selectedDate)}
+                </ThemedText>
+              </View>
+
+              <View style={styles.summaryRow}>
+                <ThemedText variant='body' colorVariant='gray' colorShade='600'>
+                  Time
+                </ThemedText>
+                <ThemedText variant='body' style={{ fontWeight: '600' }}>
+                  {formatTime(selectedTime)}
+                </ThemedText>
+              </View>
+
+              <View style={[styles.summaryRow, styles.totalRow]}>
+                <ThemedText variant='h4'>Total</ThemedText>
+                <ThemedText
+                  variant='h4'
+                  colorVariant='primary'
+                  style={{ fontWeight: '700' }}
+                >
+                  ${servicePrice}
+                </ThemedText>
+              </View>
+            </ThemedCard>
+          </View>
+
+          {/* Book Button */}
+          <View style={styles.actionSection}>
+            <ThemedButton
+              title='Confirm Booking'
+              variant='primary'
+              onPress={handleBooking}
+              icon={
+                <MaterialCommunityIcons
+                  name='check-circle'
+                  size={20}
+                  color='#FFFFFF'
+                />
+              }
+              style={{ marginBottom: 24 }}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

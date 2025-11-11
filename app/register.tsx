@@ -3,11 +3,11 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/theme';
 import {
@@ -17,10 +17,12 @@ import {
   ThemedTextInput,
 } from '@/components/ui';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAuth } from '@/hooks';
 
 export default function Register() {
   const { theme } = useTheme();
   const router = useRouter();
+  const { register, loading: authLoading, error } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -29,9 +31,8 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
       Alert.alert('Missing Information', 'Please fill in all required fields.');
       return;
@@ -50,17 +51,14 @@ export default function Register() {
       return;
     }
 
-    setLoading(true);
-    // Simulate registration
-    setTimeout(() => {
-      setLoading(false);
-      Alert.alert('Success', 'Account created successfully!', [
-        {
-          text: 'OK',
-          onPress: () => router.push('/'),
-        },
-      ]);
-    }, 1000);
+    try {
+      await register(email, password, fullName, phone || undefined);
+      // Registration successful - user will be automatically redirected by ProtectedRoute
+      router.replace('/');
+    } catch (err) {
+      // Error is already handled by the auth context
+      console.error('Registration failed:', err);
+    }
   };
 
   return (
@@ -178,23 +176,21 @@ export default function Register() {
               >
                 Password *
               </ThemedText>
-              <View style={styles.passwordContainer}>
-                <ThemedTextInput
-                  placeholder='At least 6 characters'
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize='none'
-                  style={{ paddingRight: 48 }}
-                />
-                <MaterialCommunityIcons
-                  name={showPassword ? 'eye-off' : 'eye'}
-                  size={24}
-                  color={theme.colors.gray['400']}
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
-                />
-              </View>
+              <ThemedTextInput
+                placeholder='At least 6 characters'
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize='none'
+                rightIcon={
+                  <MaterialCommunityIcons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color={theme.colors.gray['400']}
+                  />
+                }
+                onRightIconPress={() => setShowPassword(!showPassword)}
+              />
             </View>
 
             <View style={styles.formField}>
@@ -206,30 +202,30 @@ export default function Register() {
               >
                 Confirm Password *
               </ThemedText>
-              <View style={styles.passwordContainer}>
-                <ThemedTextInput
-                  placeholder='Re-enter password'
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize='none'
-                  style={{ paddingRight: 48 }}
-                />
-                <MaterialCommunityIcons
-                  name={showConfirmPassword ? 'eye-off' : 'eye'}
-                  size={24}
-                  color={theme.colors.gray['400']}
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={styles.eyeIcon}
-                />
-              </View>
+              <ThemedTextInput
+                placeholder='Re-enter password'
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+                autoCapitalize='none'
+                rightIcon={
+                  <MaterialCommunityIcons
+                    name={showConfirmPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color={theme.colors.gray['400']}
+                  />
+                }
+                onRightIconPress={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
+              />
             </View>
 
             <ThemedButton
-              title={loading ? 'Creating Account...' : 'Create Account'}
+              title={authLoading ? 'Creating Account...' : 'Create Account'}
               variant='primary'
               onPress={handleRegister}
-              disabled={loading}
+              disabled={authLoading}
               style={{ marginTop: 16 }}
             />
           </ThemedCard>
@@ -356,16 +352,6 @@ const styles = StyleSheet.create({
   },
   formField: {
     marginBottom: 16,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 8,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-    padding: 8,
   },
   divider: {
     flexDirection: 'row',

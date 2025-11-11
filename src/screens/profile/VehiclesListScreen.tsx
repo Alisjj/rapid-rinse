@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   RefreshControl,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -94,7 +94,7 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
 
     try {
       // Simulate API call with mock data
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setVehicles(mockVehicles);
     } catch (error) {
       console.error('Error loading vehicles:', error);
@@ -129,9 +129,9 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
           onPress: async () => {
             try {
               // Mock delete vehicle - replace with actual API call
-              await new Promise((resolve) => setTimeout(resolve, 1000));
+              await new Promise(resolve => setTimeout(resolve, 1000));
 
-              setVehicles((prev) => prev.filter((v) => v.id !== vehicle.id));
+              setVehicles(prev => prev.filter(v => v.id !== vehicle.id));
               Alert.alert('Success', 'Vehicle deleted successfully');
             } catch (error) {
               console.error('Error deleting vehicle:', error);
@@ -160,10 +160,10 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
   const handleSetDefault = async (vehicle: Vehicle) => {
     try {
       // Mock set default - replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      setVehicles((prev) =>
-        prev.map((v) => ({ ...v, isDefault: v.id === vehicle.id }))
+      setVehicles(prev =>
+        prev.map(v => ({ ...v, isDefault: v.id === vehicle.id }))
       );
     } catch (error) {
       console.error('Error setting default vehicle:', error);
@@ -176,11 +176,11 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
     <ThemedCard style={styles.vehicleCard}>
       <View style={styles.vehicleHeader}>
         <View style={styles.vehicleInfo}>
-          <ThemedText variant="bodyLarge" style={styles.vehicleName}>
+          <ThemedText variant='bodyLarge' style={styles.vehicleName}>
             {item.year} {item.make} {item.model}
           </ThemedText>
           <ThemedText
-            variant="body"
+            variant='body'
             style={[styles.vehicleDetails, { color: theme.colors.gray['600'] }]}
           >
             {item.color} {item.type} • {item.plateNumber}
@@ -193,7 +193,7 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
               ]}
             >
               <ThemedText
-                variant="caption"
+                variant='caption'
                 style={[
                   styles.defaultText,
                   { color: theme.colors.primary['700'] },
@@ -210,39 +210,34 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
             { backgroundColor: theme.colors.gray['100'] },
           ]}
         >
-          <ThemedText variant="h4">🚗</ThemedText>
+          <ThemedText variant='h4'>🚗</ThemedText>
         </View>
       </View>
 
       <View style={styles.vehicleActions}>
         {!item.isDefault && (
           <ThemedButton
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
+            title='Set as Default'
             onPress={() => handleSetDefault(item)}
             style={styles.actionButton}
-          >
-            Set as Default
-          </ThemedButton>
+          />
         )}
         <ThemedButton
-          variant="ghost"
-          size="sm"
+          variant='ghost'
+          size='sm'
+          title='Edit'
           onPress={() => handleEditVehicle(item)}
           style={styles.actionButton}
-        >
-          Edit
-        </ThemedButton>
+        />
         <ThemedButton
-          variant="ghost"
-          size="sm"
+          variant='ghost'
+          size='sm'
+          title='Delete'
           onPress={() => handleDeleteVehicle(item)}
           style={[styles.actionButton, styles.deleteButton]}
-        >
-          <ThemedText style={{ color: theme.colors.error['500'] }}>
-            Delete
-          </ThemedText>
-        </ThemedButton>
+        />
       </View>
     </ThemedCard>
   );
@@ -256,32 +251,31 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
           { backgroundColor: theme.colors.gray['100'] },
         ]}
       >
-        <ThemedText variant="h1">🚗</ThemedText>
+        <ThemedText variant='h1'>🚗</ThemedText>
       </View>
-      <ThemedText variant="h4" style={styles.emptyTitle}>
+      <ThemedText variant='h4' style={styles.emptyTitle}>
         No vehicles yet
       </ThemedText>
       <ThemedText
-        variant="body"
+        variant='body'
         style={[styles.emptyMessage, { color: theme.colors.gray['500'] }]}
       >
         Add your first vehicle to start booking car wash services
       </ThemedText>
       <ThemedButton
-        variant="primary"
-        size="lg"
+        variant='primary'
+        size='lg'
+        title='Add Your First Vehicle'
         onPress={handleAddVehicle}
         style={styles.emptyAddButton}
-      >
-        Add Your First Vehicle
-      </ThemedButton>
+      />
     </View>
   );
 
   // Render loading state
   const renderLoadingState = () => (
     <View style={styles.loadingContainer}>
-      <ThemedText variant="body" style={{ color: theme.colors.gray['500'] }}>
+      <ThemedText variant='body' style={{ color: theme.colors.gray['500'] }}>
         Loading your vehicles...
       </ThemedText>
     </View>
@@ -291,7 +285,7 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <Header title="My Vehicles" />
+      <Header title='My Vehicles' />
 
       <View style={styles.content}>
         {loading ? (
@@ -301,7 +295,7 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
             <FlatList
               data={vehicles}
               renderItem={renderVehicleItem}
-              keyExtractor={(item) => item.id}
+              keyExtractor={item => item.id}
               contentContainerStyle={styles.listContainer}
               showsVerticalScrollIndicator={false}
               refreshControl={
@@ -318,14 +312,12 @@ const VehiclesListScreen: React.FC<VehiclesListScreenProps> = ({
             {vehicles.length > 0 && (
               <View style={styles.addButtonContainer}>
                 <ThemedButton
-                  variant="primary"
-                  size="lg"
+                  variant='primary'
+                  size='lg'
+                  title='Add New Vehicle'
                   onPress={handleAddVehicle}
                   style={styles.addButton}
-                  leftIcon="plus"
-                >
-                  Add New Vehicle
-                </ThemedButton>
+                />
               </View>
             )}
           </>

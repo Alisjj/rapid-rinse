@@ -11,14 +11,23 @@ export interface User {
 
 export interface Business {
   id: string;
+  ownerId: string;
   name: string;
   description: string;
   address: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
   phone: string;
   email: string;
-  ownerId: string;
-  services: Service[];
+  imageUrl?: string;
+  images: string[];
+  rating: number;
+  reviewCount: number;
   operatingHours: OperatingHours;
+  services: Service[];
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,7 +68,7 @@ export type RootStackParamList = {
   Main: undefined;
   BookingDetails: { bookingId: string };
   BusinessDetails: { businessId: string };
-  ServiceBooking: { serviceId: string; businessId: string };
+  BookService: { businessId: string; serviceId?: string };
 };
 
 export type AuthStackParamList = {
@@ -79,7 +88,7 @@ export type MainTabParamList = {
 export type HomeStackParamList = {
   HomeScreen: undefined;
   BusinessDetails: { businessId: string };
-  ServiceBooking: { serviceId: string; businessId: string };
+  BookService: { businessId: string; serviceId?: string };
   SearchResults: { query: string };
 };
 

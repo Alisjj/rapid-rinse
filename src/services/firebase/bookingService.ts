@@ -203,7 +203,7 @@ export class BookingService {
       const querySnapshot = await getDocs(q);
 
       const bookings: Booking[] = [];
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         bookings.push(
           formatDocumentData<Booking>({
             id: doc.id,
@@ -214,7 +214,7 @@ export class BookingService {
 
       // Enrich all bookings with details
       const enrichedBookings = await Promise.all(
-        bookings.map((booking) => this.enrichBookingWithDetails(booking))
+        bookings.map(booking => this.enrichBookingWithDetails(booking))
       );
 
       return enrichedBookings;
@@ -339,9 +339,9 @@ export class BookingService {
 
       const q = query(bookingsRef, ...constraints);
 
-      const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+      const unsubscribe = onSnapshot(q, async querySnapshot => {
         const bookings: Booking[] = [];
-        querySnapshot.forEach((doc) => {
+        querySnapshot.forEach(doc => {
           bookings.push(
             formatDocumentData<Booking>({
               id: doc.id,
@@ -352,7 +352,7 @@ export class BookingService {
 
         // Enrich with details
         const enrichedBookings = await Promise.all(
-          bookings.map((booking) => this.enrichBookingWithDetails(booking))
+          bookings.map(booking => this.enrichBookingWithDetails(booking))
         );
 
         callback(enrichedBookings);
@@ -386,7 +386,7 @@ export class BookingService {
       });
 
       return conflicts.filter(
-        (booking) =>
+        booking =>
           booking.serviceId === serviceId &&
           ['pending', 'confirmed'].includes(booking.status)
       );
@@ -449,9 +449,6 @@ export class BookingService {
     bookingId: string
   ): Promise<void> {
     // Implement push notification or email notification
-    console.log(
-      `Notifying business ${businessId} about new booking ${bookingId}`
-    );
   }
 
   private static async sendStatusChangeNotification(
@@ -459,12 +456,11 @@ export class BookingService {
     status: Booking['status']
   ): Promise<void> {
     // Implement status change notifications
-    console.log(`Booking ${bookingId} status changed to ${status}`);
   }
 
   // Cleanup listeners
   static cleanup(): void {
-    this.listeners.forEach((unsubscribe) => unsubscribe());
+    this.listeners.forEach(unsubscribe => unsubscribe());
     this.listeners.clear();
     this.cache.clear();
   }

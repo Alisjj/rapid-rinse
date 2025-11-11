@@ -228,30 +228,30 @@ export const theme: Theme = {
     sm: {
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 2,
+      shadowOpacity: 0.03,
+      shadowRadius: 1,
       elevation: 1,
     },
     md: {
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+      elevation: 2,
     },
     lg: {
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 5,
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      elevation: 4,
     },
     xl: {
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 16,
-      elevation: 8,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.12,
+      shadowRadius: 12,
+      elevation: 6,
     },
   },
 };
@@ -283,7 +283,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   const [darkMode, setDarkMode] = React.useState<boolean>(isDark);
 
   const toggleTheme = React.useCallback(() => {
-    setDarkMode((prev) => !prev);
+    setDarkMode(prev => !prev);
     // Here you could implement dark theme switching logic
     // For now, we'll keep the same theme but track the preference
   }, []);
@@ -340,7 +340,7 @@ export const getSpacingMultiple = (
   theme: Theme,
   ...sizes: (keyof ThemeSpacing)[]
 ): number[] => {
-  return sizes.map((size) => theme.spacing[size]);
+  return sizes.map(size => theme.spacing[size]);
 };
 
 // Helper function to create consistent padding/margin
